@@ -92,7 +92,7 @@ namespace CleanSicCodes
                 List<string> headers = new List<string>();
                 foreach (string s in r.ParseRecord())
                 {
-                    headers.Add(s.Trim().TrimStart('0'));
+                    headers.Add(s.Trim());
                 }
                 while (headers.Contains(""))
                 {
@@ -110,10 +110,10 @@ namespace CleanSicCodes
                     List<string> records = new List<string>();
                     foreach (string s in r.ParseRecord())
                     {
-                        records.Add(s.Trim().TrimStart('0'));
+                        records.Add(s.Trim());
                     }
 
-                    sicNasty.Add(records[0].Trim().TrimStart('0'));
+                    sicNasty.Add(records[0].Trim());
 
                     for (int i = 2; i < records.Count; i++)
                     {
@@ -126,12 +126,15 @@ namespace CleanSicCodes
                 }
             }
 
+            WriteToCsv(new FileInfo(@"E:\Dropbox\IO Model source data\ANice.csv"), ASic);
+
             AddToSicNastyToNice(sicNasty);
 
             sicNasty = new List<string>();
 
             using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\B2010.csv"))
             {
+                r.ParseRecord();
                 while (!r.EndOfStream)
                 {
                     List<string> records = r.ParseRecord();
@@ -438,8 +441,24 @@ namespace CleanSicCodes
                         w.WriteRecord(new List<object>() { censa, sic });
                     }
                 }
-
             }
         }
+
+        static void WriteToCsv(FileInfo f, Dictionary<string, Dictionary<string, double>> value)
+        {
+            using (CsvWriter w = new CsvWriter(f.FullName))
+            {
+                w.WriteRecord(new List<string>() { "from", "to", "value" });
+
+                foreach (string from in value.Keys)
+                {
+                    foreach (string to in value[from].Keys)
+                    {
+                        w.WriteRecord(new List<object>() { from, to, value[from][to] });
+                    }
+                }
+            }
+        }
+
     }
 }
