@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TonyB", "TonyB\TonyB.csproj
 		{03906F15-CE91-4DA0-B70B-0A10CDE5C407} = {03906F15-CE91-4DA0-B70B-0A10CDE5C407}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UKPlc.Page", "..\Work\Atuk\lib\UKPlc.Page\UKPlc.Page\UKPlc.Page.csproj", "{03906F15-CE91-4DA0-B70B-0A10CDE5C407}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UKPlc.Page", "..\..\..\Git\Atuk\lib\UKPlc.Page\UKPlc.Page\UKPlc.Page.csproj", "{03906F15-CE91-4DA0-B70B-0A10CDE5C407}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

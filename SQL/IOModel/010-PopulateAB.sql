@@ -11,7 +11,16 @@ SELECT SIC2007, Description, CO2e
 FROM RawData..IOModel_B
 WHERE Sic2007 IS NOT NULL
 
-INSERT INTO ABMap (strA, strB)
-SELECT A, B
+INSERT INTO Category (intId)
+SELECT DISTINCT CombinedCat
 FROM RawData..IOModel_ABMapping
 WHERE A IS NOT NULL AND B IS NOT NULL
+
+INSERT INTO ABMap (strA, strB, intId)
+SELECT A, B, CombinedCat
+FROM RawData..IOModel_ABMapping
+WHERE A IS NOT NULL AND B IS NOT NULL
+
+INSERT INTO Intensity (intCategoryId, fltIntensitiy)
+SELECT Category, Intensity
+FROM RawData..IOModel_Intensities 

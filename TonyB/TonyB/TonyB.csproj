@@ -34,7 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -101,35 +100,28 @@
   <ItemGroup>
     <Compile Include="AddAuthors.aspx.cs">
       <DependentUpon>AddAuthors.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="AddAuthors.aspx.designer.cs">
       <DependentUpon>AddAuthors.aspx</DependentUpon>
     </Compile>
     <Compile Include="AddKeywords.aspx.cs">
       <DependentUpon>AddKeywords.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="AddKeywords.aspx.designer.cs">
       <DependentUpon>AddKeywords.aspx</DependentUpon>
     </Compile>
     <Compile Include="AddPaper.aspx.cs">
       <DependentUpon>AddPaper.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="AddPaper.aspx.designer.cs">
       <DependentUpon>AddPaper.aspx</DependentUpon>
     </Compile>
     <Compile Include="AjaxFormWindow.aspx.cs">
       <DependentUpon>AjaxFormWindow.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="App_Code\Sitehead.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Include="App_Code\Sitehead.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
@@ -139,7 +131,6 @@
     </Compile>
     <Compile Include="KeywordPapers.aspx.cs">
       <DependentUpon>KeywordPapers.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="KeywordPapers.aspx.designer.cs">
       <DependentUpon>KeywordPapers.aspx</DependentUpon>
@@ -147,7 +138,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VirtualHandler.aspx.cs">
       <DependentUpon>VirtualHandler.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="VirtualHandler.aspx.designer.cs">
       <DependentUpon>VirtualHandler.aspx</DependentUpon>
@@ -157,7 +147,7 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Work\Atuk\lib\UKPlc.Page\UKPlc.Page\UKPlc.Page.csproj">
+    <ProjectReference Include="..\..\..\..\Git\Atuk\lib\UKPlc.Page\UKPlc.Page\UKPlc.Page.csproj">
       <Project>{03906F15-CE91-4DA0-B70B-0A10CDE5C407}</Project>
       <Name>UKPlc.Page</Name>
     </ProjectReference>
