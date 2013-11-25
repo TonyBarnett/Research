@@ -16,7 +16,7 @@ SELECT DISTINCT CombinedCat
 FROM RawData..IOModel_ABMapping
 WHERE A IS NOT NULL AND B IS NOT NULL
 
-INSERT INTO ABMap (strA, strB, intId)
+INSERT INTO ABMap (strA, strB, intCategoryId)
 SELECT A, B, CombinedCat
 FROM RawData..IOModel_ABMapping
 WHERE A IS NOT NULL AND B IS NOT NULL
