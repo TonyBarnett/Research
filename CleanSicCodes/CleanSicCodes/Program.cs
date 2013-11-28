@@ -175,7 +175,7 @@ namespace CleanSicCodes
             };
 
             DataTable a = DB.Query(
-                "SELECT f.intCategoryId, t.intCategoryId, SUM(a.monTotal) AS monTotal " +
+                "SELECT f.intCategoryId AS intFromId, t.intCategoryId AS intToId, SUM(a.monTotal) AS monTotal " +
                 "FROM A a  " +
                 "   INNER JOIN ABMap f ON f.strA = a.strSic2007From " +
                 "   INNER JOIN ABMap t ON t.strA = a.strSic2007To " +
@@ -198,8 +198,79 @@ namespace CleanSicCodes
                 "GROUP BY intCategoryId",
                 "IOModel", null
             );
+
+            foreach (string dir in directories)
+            {
+                WriteToCsv(new FileInfo(dir + "B.csv"), e, new List<string>() { "fltCO2" });
+                WriteToCsv(new FileInfo(dir + "F.csv"), f, new List<string>() { "monTotal" });
+                DataTable aMatrix = GetAMatrix(a);
+                WriteToCsv(new FileInfo(dir + "A.csv"), aMatrix, null);
+
+            }
         }
 
+        private static void WriteToCsv(FileInfo file, DataTable data, List<string> columnsToWrite)
+        {
+            using (CsvWriter w = new CsvWriter(file.FullName))
+            {
+                foreach (DataRow row in data.Rows)
+                {
+                    List<object> cols = new List<object>();
+                    if (columnsToWrite != null)
+                    {
+                        foreach (string column in columnsToWrite)
+                        {
+                            cols.Add(row[column].ToString());
+                        }
+                    }
+                    else
+                    {
+                        foreach(object o in row.ItemArray)
+                        {
+                            cols.Add(o);
+                        }
+                    }
+                    w.WriteRecord(cols);
+                }
+            }
+        }
+
+        private static DataTable GetAMatrix(DataTable t)
+        {
+            DataTable a = new DataTable();
+
+            for (int i = 0; i < 105; i++)
+            {
+                a.Columns.Add("Column" + i, typeof(double));
+            }
+
+            Dictionary<int, Dictionary<int, string>> row = new Dictionary<int, Dictionary<int, string>>();
+            foreach (DataRow r in t.Rows)
+            {
+                int from = int.Parse(r["intFromId"].ToString());
+
+                if (!row.ContainsKey(from))
+                {
+                    row.Add(from, new Dictionary<int, string>());
+                }
+
+                row[from].Add(int.Parse(r["intToId"].ToString()), r["monTotal"].ToString());
+            }
+
+            object[] o = new object[105];
+
+            foreach (int from in row.Keys)
+            {
+                int j = 0;
+                foreach (int to in row[from].Keys)
+                {
+                    o[j++] = row[from][to];
+                }
+                a.Rows.Add(o);
+            }
+            
+            return a;
+        }
 
         private static bool IsNull(List<string> ss)
         {
