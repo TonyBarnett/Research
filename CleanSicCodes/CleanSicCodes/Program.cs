@@ -7,85 +7,24 @@ using System.Text.RegularExpressions;
 using UKPlc.Csv;
 using UKPlc.SpendAnalysis;
 using System.IO;
+using System;
 
 namespace CleanSicCodes
 {
     class Program
     {
-        private static List<int> _SicNice;
-
-        /// <summary>
-        /// A list of all SIC2007 codes in nice format.
-        /// </summary>
-        public static List<int> SicNice
-        {
-            get
-            {
-                if (_SicNice == null)
-                {
-                    _SicNice = new List<int>();
-
-                    foreach (DataRow r in DB.Select("SELECT intSIC2007 FROM gSIC2003_SIC2007 GROUP BY intSIC2007").Rows)
-                    {
-                        _SicNice.Add(int.Parse(r["intSic2007"].ToString()));
-                    }
-                }
-
-                return _SicNice;
-            }
-        }
-
-        private static Dictionary<int, List<int>> _CensaToSic;
-
-        /// <summary>
-        /// A list of nice SIC2007 codes for each Censa code.
-        /// </summary>
-        static Dictionary<int, List<int>> CensaToSic
-        {
-            get
-            {
-                if (_CensaToSic == null)
-                {
-                    _CensaToSic = new Dictionary<int, List<int>>();
-
-                    string query =
-                        "SELECT c.intCensa76, intSIC2007 " +
-                        "FROM gSic2003_Censa76 c " +
-                        "	INNER JOIN gSic2003_Censa76 sc ON sc.intCensa76 = c.intCensa76 " +
-                        "	INNER JOIN gSIC2003_SIC2007 s ON s.intSIC2003 = sc.strSIC " +
-                        "GROUP BY c.intCensa76, intSIC2007";
-
-                    foreach (DataRow r in DB.Select(query).Rows)
-                    {
-                        int c = int.Parse(r["intCensa76"].ToString());
-                        if (!_CensaToSic.ContainsKey(c))
-                        {
-                            _CensaToSic.Add(c, new List<int>());
-
-                        }
-                        _CensaToSic[c].Add(int.Parse(r["intSIC2007"].ToString()));
-                    }
-                }
-                return _CensaToSic;
-            }
-        }
-
-        /// <summary>
-        /// A list of nice SIC2007 codes grouped by nasty Sic code.
-        /// </summary>
-        static Dictionary<string, List<int>> SicNastyToNice;
-
-        static Dictionary<int, Dictionary<string, double>> CensaToNastySic;
-
-        static Dictionary<string, double> BSic;
-
         static Dictionary<string, Dictionary<string, double>> ASic;
 
         static void Main(string[] args)
         {
-            SicNastyToNice = new Dictionary<string, List<int>>();
+            Createmodel();
+            CreateVariables();
+
+        }
+
+        static void Createmodel()
+        {
             ASic = new Dictionary<string, Dictionary<string, double>>();
-            BSic = new Dictionary<string, double>();
             List<string> sicNasty = new List<string>();
             using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\A2010.csv"))
             {
@@ -94,16 +33,19 @@ namespace CleanSicCodes
                 {
                     headers.Add(s.Trim());
                 }
-                while (headers.Contains(""))
+
+                while (headers.Contains("")) // remove any empty elements in the list
                 {
                     headers.Remove("");
                 }
+
                 r.ParseRecord();
 
                 foreach (string h in headers)
                 {
                     ASic.Add(h, new Dictionary<string, double>());
                 }
+
 
                 while (!r.EndOfStream)
                 {
@@ -115,152 +57,183 @@ namespace CleanSicCodes
 
                     sicNasty.Add(records[0].Trim());
 
-                    for (int i = 2; i < records.Count; i++)
+                    for (int i = 2; i < records.Count - 1; i++)
                     {
                         string thing = headers[i - 2];
                         thing = records[i];
                         thing = records[0];
                         Dictionary<string, double> t = ASic[thing];
-                        ASic[records[0]].Add(headers[i - 2], double.Parse(records[i] == "" ? "0" : records[i]));
+                        // We want the proportion of each element in each row divided by the row total.
+                        ASic[records[0]].Add(headers[i - 2], double.Parse(records[records.Count - 1]) == 0 ? 0 : double.Parse(records[i] == "" ? "0" : records[i]) / double.Parse(records[records.Count - 1]));
                     }
                 }
             }
 
-            WriteToCsv(new FileInfo(@"E:\Dropbox\IO Model source data\ANice.csv"), ASic);
+            List<List<object>> a = new List<List<object>>();
 
-            AddToSicNastyToNice(sicNasty);
+            int j = 0;
+            foreach (string s in ASic.Keys)
+            {
+                foreach (string v in ASic[s].Keys)
+                {
+                    a.Add(new List<object>());
+                    a[j].Add(s);
+                    a[j].Add(v);
+                    a[j++].Add(ASic[s][v]);
+                }
+            }
 
-            sicNasty = new List<string>();
+            List<List<object>> aHeaders = new List<List<object>>();
+            j=0;
+
+            foreach (List<object> o in a)
+            {
+                if (!ContainsObject(aHeaders, o[0]))
+                {
+                    aHeaders.Add(new List<object>());
+                    aHeaders[j++].Add(o[0]);
+                }
+            }
+
+            List<List<object>> b = new List<List<object>>();
 
             using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\B2010.csv"))
             {
+                int k = 0;
                 r.ParseRecord();
                 while (!r.EndOfStream)
                 {
                     List<string> records = r.ParseRecord();
                     sicNasty.Add(records[0]);
-
-                    BSic.Add(records[0], double.Parse(records[2].Replace("\\n", "").Replace("\\r", "")));
-                }
-            }
-
-            AddToSicNastyToNice(sicNasty);
-            PopulateCensaToNastySic();
-
-            Dictionary<int, double> b = GetB();
-            Dictionary<int, Dictionary<int, double>> a = GetA();
-
-            WriteToCsv(new FileInfo(@"E:\Dropbox\IO Model source data\A.csv"), a);
-            WriteToCsv(new FileInfo(@"E:\Dropbox\IO Model source data\B.csv"), b);
-            WriteToCsv(new FileInfo(@"E:\Dropbox\IO Model source data\CensaToSic.csv"), CensaToNastySic);
-        }
-
-        static void AddToSicNastyToNice(List<string> sicNasty)
-        {
-            foreach (string sic in sicNasty)
-            {
-                if (!SicNastyToNice.ContainsKey(sic))
-                {
-                    SicNastyToNice.Add(sic, new List<int>());
-                    GetSic(sic);
-                }
-            }
-        }
-
-        static void GetSic(string dirtySic)
-        {
-            GetSic(dirtySic, dirtySic, new List<string>());
-        }
-
-        static void GetSic(string dirtySic, string dirtys)
-        {
-            GetSic(dirtySic, dirtys, new List<string>());
-        }
-
-        static void GetSic(string dirtySic, string dirtys, List<string> nots)
-        {                        //   m1        m2             m3
-            string regexPattern = @"(\d+)(?:\.(\d+))?(?:[\\/](\d+))?";
-
-            if (dirtySic.ToUpper().Contains("OTHER"))
-            {
-                List<string> e = new List<string>();
-                foreach (string s in SicNastyToNice.Keys.Where(n => n.Contains(dirtySic.Replace("OTHER", "")) && n != dirtySic))
-                {
-                    if (s.Contains('-'))
+                    b.Add(new List<object>());
+                    for (int l = 0; l < records.Count; l++)
                     {
-                        nots.AddRange(SplitHyphen(s));
+                        b[k].Add(records[l].Replace("\r", ""));
                     }
-                    else
-                    {
-                        nots.Add(s);
-                    }
+                    k++;
                 }
-
-                GetSic(dirtySic.Replace("OTHER", ""), dirtys, nots);
             }
 
-            else if (dirtySic.ToUpper().Contains("NOT"))
-            {
-                string[] split = dirtySic.ToUpper().Replace("NOT", "|").Replace("NOR", "|").Split('|');
+            List<List<object>> abMap = new List<List<object>>();
 
-                for (int i = 1; i < split.Length; i++)
+            using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\ABMap.csv"))
+            {
+                r.ParseRecord();// Skip column headers.
+                j = 0;
+                while (!r.EndOfStream)
                 {
-                    if (split[i].Contains("-"))
+                    List<string> record = r.ParseRecord();
+
+
+                    if (!IsNull(record))
                     {
-                        foreach (string s in SplitHyphen(split[i]))
+                        abMap.Add(new List<object>());
+                        for (int i = 0; i < record.Count; i++)
                         {
-                            nots.Add(RemoveBrackets(s));
+                            abMap[j].Add(record[i].Replace("\r", ""));
                         }
+                        j++;
                     }
-                    else
+                }
+            }
+
+            List<List<object>> F = new List<List<object>>();
+
+            using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\F2010.csv"))
+            {
+                r.ParseRecord();
+                j = 0;
+                while (!r.EndOfStream)
+                {
+                    List<string> record = r.ParseRecord();
+                    
+                    F.Add(new List<object>());
+
+                    for (int i = 0; i < record.Count; i++)
                     {
-                        nots.Add(RemoveBrackets(split[i]));
+                        F[j].Add(record[i].Replace("\r", ""));
                     }
-                }
-                GetSic(RemoveBrackets(split[0]), dirtys, nots);
-            }
-
-            else if (dirtySic.Contains(',') || dirtySic.Contains('&') || dirtySic.Contains('+'))
-            {
-                foreach (string s in dirtySic.Split(new char[] { '&', ',', '+' }))
-                {
-                    GetSic(s, dirtys, nots);
+                    j++;
                 }
             }
 
-            else if (dirtySic.Contains('-'))
+            DB.CreateAndRunDatabase("IOModel", @"E:\SQL server Data\", @"D:\SQL logs\", new DirectoryInfo(@"E:\GitHub\Research\SQL\IOModel\"));
+
+            DB.LoadToTable("AHeaders", aHeaders);
+            DB.LoadToTable("A", a);
+            DB.LoadToTable("B", b);
+            DB.LoadToTable("F", F);
+            DB.LoadToTable("ABMap", abMap);
+
+        }
+
+        static void CreateVariables()
+        {
+            List<string> directories = new List<string>() { 
+                @"E:\Dropbox\IO Model source data\MatlabData\", 
+                @"E:\Dropbox\matlabFiles\Inputs" 
+            };
+
+            DataTable a = DB.Query(
+                "SELECT f.intCategoryId, t.intCategoryId, SUM(a.monTotal) AS monTotal " +
+                "FROM A a  " +
+                "   INNER JOIN ABMap f ON f.strA = a.strSic2007From " +
+                "   INNER JOIN ABMap t ON t.strA = a.strSic2007To " +
+                "GROUP BY f.intCategoryId, t.intCategoryId",
+                "IOModel", null
+            );
+
+            DataTable e = DB.Query(
+                "SELECT intCategoryId, SUM(fltCO2) AS fltCO2 " +
+                "FROM B b " +
+                "	INNER JOIN ABMap m ON m.strB = b.strSic2007 " +
+                "GROUP BY intCategoryId",
+                "IOModel", null
+            );
+
+            DataTable f = DB.Query(
+                "SELECT intCategoryId, SUM(ISNULL(monTotal, 0)) AS monTotal " +
+                "FROM ABMap m " +
+                "	LEFT JOIN F f  ON f.strSic2007 = m.strA " +
+                "GROUP BY intCategoryId",
+                "IOModel", null
+            );
+        }
+
+
+        private static bool IsNull(List<string> ss)
+        {
+            foreach (string s in ss)
             {
-                foreach (string s in SplitHyphen(dirtySic))
+                if (IsNull(s))
                 {
-                    GetSic(s, dirtys, nots);
+                    return true;
                 }
+                return false;
             }
 
+            return false;
+        }
 
-            else if (Regex.IsMatch(dirtySic, regexPattern))
+        private static bool IsNull(string s)
+        {
+            return s.ToUpper() == "NULL" ? true : false;
+        }
+
+        private static bool ContainsObject(List<List<object>> list, object item)
+        {
+            foreach (List<object> obj in list)
             {
-                StringBuilder sb = NiceifySic(regexPattern, dirtySic);
-
-
-                StringBuilder query = new StringBuilder();
-
-                List<int> thing = SicNice.Where(n => Regex.IsMatch(n.ToString(), @"^" + sb.ToString() + @"$")).ToList();
-
-                if (nots != null && nots.Count > 0)
+                foreach (object o in obj)
                 {
-                    foreach (string not in nots)
+                    if (o == item)
                     {
-                        sb = NiceifySic(regexPattern, not);
-                        List<int> i = new List<int>();
-                        foreach (int j in thing.Where(n => Regex.IsMatch(n.ToString(), sb.ToString())))
-                        {
-                            i.Add(j);
-                        }
-                        thing.RemoveAll(j => i.Contains(j));
+                        return true;
                     }
                 }
-                SicNastyToNice[dirtys].AddRange(thing);
             }
+
+            return false;
         }
 
         static StringBuilder NiceifySic(string regexPattern, string nastySic)
@@ -299,166 +272,5 @@ namespace CleanSicCodes
         {
             return thing.Replace("(", "").Replace(")", "");
         }
-
-        static void PopulateCensaToNastySic()
-        {
-            CensaToNastySic = new Dictionary<int, Dictionary<string, double>>();
-
-            foreach (int i in CensaToSic.Keys)
-            {
-                CensaToNastySic.Add(i, new Dictionary<string, double>());
-            }
-
-            foreach (int censa in CensaToNastySic.Keys)
-            {
-                List<int> niceSic = CensaToSic[censa];
-
-                foreach (int nice in niceSic)
-                {
-                    foreach (string nasty in SicNastyToNice.Keys)
-                    {
-                        if (SicNastyToNice[nasty].Contains(nice))
-                        {
-                            if (!CensaToNastySic[censa].ContainsKey(nasty))
-                            {
-                                CensaToNastySic[censa].Add(nasty, (double)1 / (double)SicNastyToNice[nasty].Count);
-                            }
-                            else
-                            {
-                                CensaToNastySic[censa][nasty] += (double)1 / (double)SicNastyToNice[nasty].Count;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        static Dictionary<int, double> GetB()
-        {
-            // For each censa find all nice SICs, find all nastySics with the proportion of each
-            // multiply the propotion of nastySic by the initial value of B and by 1 / n 
-            // where n is the number of niceSics codes over which the Censa is distributes
-            Dictionary<int, double> b = new Dictionary<int, double>();
-
-            foreach (int censa in CensaToNastySic.Keys.OrderBy(c => c))
-            {
-                double value = new double();
-                double counter = 0;
-                foreach (string ns in CensaToNastySic[censa].Keys)
-                {
-                    if (BSic.ContainsKey(ns))
-                    {
-                        value += CensaToNastySic[censa][ns] * BSic[ns];
-                        counter++;
-                    }
-                }
-
-                b.Add(censa, value / counter);
-            }
-            return b;
-        }
-
-        static Dictionary<int, Dictionary<int, double>> GetA()
-        {
-            Dictionary<int, Dictionary<int, double>> a = new Dictionary<int, Dictionary<int, double>>();
-
-
-            foreach (int from in CensaToNastySic.Keys.OrderBy(c => c))
-            {
-                a.Add(from, new Dictionary<int, double>());
-                foreach (int to in CensaToNastySic.Keys.OrderBy(c => c))
-                {
-                    double value = new double();
-                    double counter = new double();
-                    foreach (string f in CensaToNastySic[from].Keys)
-                    {
-                        foreach (string t in CensaToNastySic[to].Keys)
-                        {
-                            if (ASic.ContainsKey(f) && ASic.ContainsKey(t))
-                            {
-                                value += CensaToNastySic[from][f] * ASic[f][t];
-                                counter++;
-                            }
-                        }
-                    }
-
-                    a[from].Add(to, value / counter);
-                }
-            }
-            return a;
-        }
-
-        static void WriteToCsv(FileInfo f, Dictionary<int, double> values)
-        {
-            using (CsvWriter w = new CsvWriter(f.FullName))
-            {
-                foreach (int censa in values.Keys)
-                {
-                    w.WriteRecord(new List<object>() { censa, values[censa] });
-                }
-            }
-        }
-
-        static void WriteToCsv(FileInfo f, Dictionary<int, Dictionary<int, double>> values)
-        {
-            using (CsvWriter w = new CsvWriter(f.FullName))
-            {
-                List<object> o = new List<object>();
-
-                o.Add("");
-                foreach (int censa in values.Keys)
-                {
-                    o.Add(censa);
-                }
-
-                w.WriteRecord(o);
-
-                foreach (int censa in values.Keys)
-                {
-                    o = new List<object>();
-
-                    o.Add(censa);
-                    foreach (int c in values[censa].Keys)
-                    {
-                        o.Add(values[censa][c]);
-                    }
-
-                    w.WriteRecord(o);
-                }
-            }
-        }
-
-        static void WriteToCsv(FileInfo f, Dictionary<int, Dictionary<string, double>> values)
-        {
-
-            using (CsvWriter w = new CsvWriter(f.FullName))
-            {
-                w.WriteRecord(new List<object>() { "Censa" , "Sic2007"});
-                foreach (int censa in values.Keys)
-                {
-                    foreach (string sic in values[censa].Keys)
-                    {
-                        w.WriteRecord(new List<object>() { censa, sic });
-                    }
-                }
-            }
-        }
-
-        static void WriteToCsv(FileInfo f, Dictionary<string, Dictionary<string, double>> value)
-        {
-            using (CsvWriter w = new CsvWriter(f.FullName))
-            {
-                w.WriteRecord(new List<string>() { "from", "to", "value" });
-
-                foreach (string from in value.Keys)
-                {
-                    foreach (string to in value[from].Keys)
-                    {
-                        w.WriteRecord(new List<object>() { from, to, value[from][to] });
-                    }
-                }
-            }
-        }
-
     }
 }
