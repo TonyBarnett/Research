@@ -18,7 +18,7 @@ namespace CleanSicCodes
         static void Main(string[] args)
         {
             Createmodel();
-            CreateVariables();
+            CreateCSVs();
 
         }
 
@@ -167,15 +167,15 @@ namespace CleanSicCodes
 
         }
 
-        static void CreateVariables()
+        static void CreateCSVs()
         {
             List<string> directories = new List<string>() { 
                 @"E:\Dropbox\IO Model source data\MatlabData\", 
-                @"E:\Dropbox\matlabFiles\Inputs" 
+                @"E:\Dropbox\matlabFiles\Inputs\" 
             };
 
             DataTable a = DB.Query(
-                "SELECT f.intCategoryId AS intFromId, t.intCategoryId AS intToId, SUM(a.monTotal) AS monTotal " +
+                "SELECT f.intCategoryId AS intFromId, t.intCategoryId AS intToId, SUM(ISNULL(a.monTotal,0))/COUNT(*) AS monTotal " +
                 "FROM A a  " +
                 "   INNER JOIN ABMap f ON f.strA = a.strSic2007From " +
                 "   INNER JOIN ABMap t ON t.strA = a.strSic2007To " +
@@ -184,10 +184,14 @@ namespace CleanSicCodes
             );
 
             DataTable e = DB.Query(
-                "SELECT intCategoryId, SUM(fltCO2) AS fltCO2 " +
-                "FROM B b " +
-                "	INNER JOIN ABMap m ON m.strB = b.strSic2007 " +
-                "GROUP BY intCategoryId",
+                "SELECT m.intCategoryId, " +
+                "	CASE WHEN SUM(f.monTotal) = 0 THEN 0 " + 
+                "		ELSE SUM(b.fltCO2)/ SUM(f.monTotal) " + 
+                "	END AS fltCO2 " + 
+                "FROM B b " + 
+                "	INNER JOIN ABMap m ON m.strB = b.strSic2007 " + 
+                "	LEFT JOIN F f ON f.strSic2007 = m.strA " + 
+                "GROUP BY m.intCategoryId",
                 "IOModel", null
             );
 
