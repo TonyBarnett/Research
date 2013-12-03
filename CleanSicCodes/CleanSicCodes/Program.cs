@@ -110,8 +110,7 @@ namespace CleanSicCodes
                     
                     b[k].Add(records[0].Replace("\r", ""));
                     b[k++].Add(records[2].Replace("\r", ""));
-
-                    if (!description.ContainsKey(records[0]))
+                    if (!description["A"].ContainsKey(records[0]))
                     {
                         description["B"].Add(records[0], records[1]);
                     }
