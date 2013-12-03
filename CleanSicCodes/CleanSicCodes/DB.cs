@@ -70,7 +70,7 @@ namespace CleanSicCodes
 
                 for (int i = 0;i<value.Count;i++)
                 {
-                    val.Append(string.Format("{0},", columns[i].Substring(0,3) == "str" ? "'" +  value[i].ToString() + "'": value[i]));
+                    val.Append(string.Format("{0},", columns[i].Substring(0,3) == "str" ? "'" +  value[i].ToString() + "'": value[i].ToString()));
                 }
 
                 using (SqlCommand cmd = new SqlCommand(string.Format(insert, tableName, col.ToString().Substring(0, col.Length - 1), val.ToString().Substring(0, val.Length - 1))))

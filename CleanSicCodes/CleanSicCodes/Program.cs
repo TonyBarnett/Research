@@ -20,10 +20,14 @@ namespace CleanSicCodes
             Createmodel();
             CreateCSVs();
 
+            Console.WriteLine("Now go and run \"IOModel.m\" in Matlab\nThen press <return>");
+            Console.ReadLine();
+            WriteIntensities();
         }
 
         static void Createmodel()
         {
+            Dictionary<string, Dictionary<string, string>> description = new Dictionary<string, Dictionary<string, string>>();
             ASic = new Dictionary<string, Dictionary<string, double>>();
             List<string> sicNasty = new List<string>();
             using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\A2010.csv"))
@@ -31,22 +35,16 @@ namespace CleanSicCodes
                 List<string> headers = new List<string>();
                 foreach (string s in r.ParseRecord())
                 {
-                    headers.Add(s.Trim());
-                }
-
-                while (headers.Contains("")) // remove any empty elements in the list
-                {
-                    headers.Remove("");
+                    if (s.Trim() != "")
+                    {
+                        headers.Add(s.Trim());
+                        ASic.Add(s.Trim(), new Dictionary<string, double>());
+                    }
                 }
 
                 r.ParseRecord();
 
-                foreach (string h in headers)
-                {
-                    ASic.Add(h, new Dictionary<string, double>());
-                }
-
-
+                description.Add("A", new Dictionary<string, string>());
                 while (!r.EndOfStream)
                 {
                     List<string> records = new List<string>();
@@ -56,6 +54,8 @@ namespace CleanSicCodes
                     }
 
                     sicNasty.Add(records[0].Trim());
+
+                    description["A"].Add(records[0], records[1]);
 
                     for (int i = 2; i < records.Count - 1; i++)
                     {
@@ -101,16 +101,20 @@ namespace CleanSicCodes
             {
                 int k = 0;
                 r.ParseRecord();
+                description.Add("B", new Dictionary<string, string>());
                 while (!r.EndOfStream)
                 {
                     List<string> records = r.ParseRecord();
                     sicNasty.Add(records[0]);
                     b.Add(new List<object>());
-                    for (int l = 0; l < records.Count; l++)
+                    
+                    b[k].Add(records[0].Replace("\r", ""));
+                    b[k++].Add(records[2].Replace("\r", ""));
+
+                    if (!description.ContainsKey(records[0]))
                     {
-                        b[k].Add(records[l].Replace("\r", ""));
+                        description["B"].Add(records[0], records[1]);
                     }
-                    k++;
                 }
             }
 
@@ -157,6 +161,20 @@ namespace CleanSicCodes
                 }
             }
 
+            List<List<object>> d = new List<List<object>>();
+
+            int kay = new int();
+            foreach (string jay in description.Keys)
+            {
+                foreach (string key in description[jay].Keys)
+                {
+                    d.Add(new List<object>());
+                    d[kay].Add(jay);
+                    d[kay].Add(key);
+                    d[kay++].Add(description[jay][key].Replace("'", "''"));
+                }
+            }
+
             DB.CreateAndRunDatabase("IOModel", @"E:\SQL server Data\", @"D:\SQL logs\", new DirectoryInfo(@"E:\GitHub\Research\SQL\IOModel\"));
 
             DB.LoadToTable("AHeaders", aHeaders);
@@ -164,6 +182,7 @@ namespace CleanSicCodes
             DB.LoadToTable("B", b);
             DB.LoadToTable("F", F);
             DB.LoadToTable("ABMap", abMap);
+            DB.LoadToTable("SicDescription", d);
 
         }
 
@@ -213,6 +232,27 @@ namespace CleanSicCodes
             }
         }
 
+        static void WriteIntensities()
+        {
+            List<List<object>> o = new List<List<object>>();
+            using (CsvReader r = new CsvReader(@"E:\Dropbox\matlabFiles\VariableRecords\IOModel.csv"))
+            {
+                int i = 0;
+                while(!r.EndOfStream)
+                {
+                    o.Add(new List<object>());
+                    List<string> thing = r.ParseRecord();
+                    foreach (string t in thing)
+                    {
+                        o[i].Add(t);
+                    }
+                    i++;
+                }
+            }
+
+            DB.LoadToTable("Intensity", o);
+        }
+        
         private static void WriteToCsv(FileInfo file, DataTable data, List<string> columnsToWrite)
         {
             using (CsvWriter w = new CsvWriter(file.FullName))
