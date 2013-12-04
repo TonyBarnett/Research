@@ -188,7 +188,7 @@ namespace CleanSicCodes
         static void CreateCSVs()
         {
             List<string> directories = new List<string>() { 
-                @"E:\Dropbox\IO Model source data\MatlabData\", 
+                //@"E:\Dropbox\IO Model source data\MatlabData\", 
                 @"E:\Dropbox\matlabFiles\Inputs\" 
             };
 
