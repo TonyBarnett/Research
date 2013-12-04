@@ -57,12 +57,12 @@ namespace CompareIOModelToCensa
             int j = 0;
             foreach (int io in map76.Keys)
             {
-                o.Add(new List<object>());
                 foreach (int i in map76[io].Keys)
                 {
+                    o.Add(new List<object>());
                     o[j].Add(io);
                     o[j].Add(i);
-                    o[j].Add(map76[io][i]);
+                    o[j++].Add(map76[io][i]);
                 }
             }
 
@@ -72,12 +72,12 @@ namespace CompareIOModelToCensa
             j = 0;
             foreach (int io in map123.Keys)
             {
-                o.Add(new List<object>());
                 foreach (int i in map123[io].Keys)
                 {
+                    o.Add(new List<object>());
                     o[j].Add(io);
                     o[j].Add(i);
-                    o[j].Add(map123[io][i]);
+                    o[j++].Add(map123[io][i]);
                 }
             }
 
@@ -126,13 +126,13 @@ namespace CompareIOModelToCensa
 
             foreach (string s in d)
             {
-                description.Add(s.Trim(new char[] { ' ', '.' }).ToUpper());
+                description.Add(s.Trim(new char[] { ' ', ',' }).ToUpper());
             }
 
-            int similarity = 0;
 
             foreach (int i in to.Keys)
             {
+                int similarity = 0;
                 List<string> toDesctiption = new List<string>();
                 List<string> t = new List<string>();
                 t.AddRange(to[i].Split(' ').Where(x => !Excludes.Contains(x.ToUpper())));
@@ -149,8 +149,10 @@ namespace CompareIOModelToCensa
                         similarity++;
                     }
                 }
-
-                value.Add(i, similarity);
+                if (similarity > 0)
+                {
+                    value.Add(i, similarity);
+                }
             }
 
             return value;
