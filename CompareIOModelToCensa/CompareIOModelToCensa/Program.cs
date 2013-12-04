@@ -39,30 +39,49 @@ namespace CompareIOModelToCensa
             Dictionary<int, string> ioModel = GetData();
 
             Dictionary<int, Dictionary<int, int>> map76 = new Dictionary<int, Dictionary<int, int>>();
-            Dictionary<int, Dictionary<int, int>> map123= new Dictionary<int, Dictionary<int, int>>();
+            Dictionary<int, Dictionary<int, int>> map123 = new Dictionary<int, Dictionary<int, int>>();
 
-            foreach (int c76 in censa76.Keys)
+            foreach (int io in ioModel.Keys)
             {
-                map76.Add(c76, new Dictionary<int, int>());
-                map76[c76] = Compare(c76, censa76[c76], ioModel);
+                map76.Add(io, new Dictionary<int, int>());
+                map76[io] = Compare(io, ioModel[io], censa76);
             }
 
-            foreach (int c123 in censa123.Keys)
+            foreach (int io in ioModel.Keys)
             {
-                map123.Add(c123, new Dictionary<int, int>());
-                map123[c123] = Compare(c123, censa123[c123], ioModel);
+                map123.Add(io, new Dictionary<int, int>());
+                map123[io] = Compare(io, ioModel[io], censa123);
             }
 
             List<List<object>> o = new List<List<object>>();
-            foreach (int c76 in map76.Keys)
+            int j = 0;
+            foreach (int io in map76.Keys)
             {
-                foreach (int c in map76[c76].Keys)
+                o.Add(new List<object>());
+                foreach (int i in map76[io].Keys)
                 {
-
+                    o[j].Add(io);
+                    o[j].Add(i);
+                    o[j].Add(map76[io][i]);
                 }
             }
 
-            DB.LoadToTable("IOModel_Censa76");
+            DB.LoadToTable("IOModel_Censa76", o);
+
+            o = new List<List<object>>();
+            j = 0;
+            foreach (int io in map123.Keys)
+            {
+                o.Add(new List<object>());
+                foreach (int i in map123[io].Keys)
+                {
+                    o[j].Add(io);
+                    o[j].Add(i);
+                    o[j].Add(map123[io][i]);
+                }
+            }
+
+            DB.LoadToTable("IOModel_Censa123", o);
         }
 
         private static Dictionary<int, string> GetData(int censaId)
@@ -120,7 +139,7 @@ namespace CompareIOModelToCensa
 
                 foreach (string s in t)
                 {
-                    toDesctiption.Add( s.Trim(new char[]{' ', ','}).ToUpper());
+                    toDesctiption.Add(s.Trim(new char[] { ' ', ',' }).ToUpper());
                 }
 
                 foreach (string s in description)
