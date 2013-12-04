@@ -21,6 +21,7 @@ namespace CompareIOModelToCensa
                     _Excludes.Add("AND");
                     _Excludes.Add("OF");
                     _Excludes.Add("&");
+                    _Excludes.Add("PRODUCTS");
                     //_Excludes.Add("");
                 }
 
@@ -37,13 +38,31 @@ namespace CompareIOModelToCensa
             Dictionary<int, string> censa123 = GetData(123);
             Dictionary<int, string> ioModel = GetData();
 
-            Dictionary<int, Dictionary<int, int>> map = new Dictionary<int, Dictionary<int, int>>();
+            Dictionary<int, Dictionary<int, int>> map76 = new Dictionary<int, Dictionary<int, int>>();
+            Dictionary<int, Dictionary<int, int>> map123= new Dictionary<int, Dictionary<int, int>>();
 
             foreach (int c76 in censa76.Keys)
             {
-                map.Add(c76, new Dictionary<int, int>());
-                map[c76] = Compare(c76, censa76[c76], ioModel);
+                map76.Add(c76, new Dictionary<int, int>());
+                map76[c76] = Compare(c76, censa76[c76], ioModel);
             }
+
+            foreach (int c123 in censa123.Keys)
+            {
+                map123.Add(c123, new Dictionary<int, int>());
+                map123[c123] = Compare(c123, censa123[c123], ioModel);
+            }
+
+            List<List<object>> o = new List<List<object>>();
+            foreach (int c76 in map76.Keys)
+            {
+                foreach (int c in map76[c76].Keys)
+                {
+
+                }
+            }
+
+            DB.LoadToTable("IOModel_Censa76");
         }
 
         private static Dictionary<int, string> GetData(int censaId)
@@ -66,9 +85,9 @@ namespace CompareIOModelToCensa
         {
             Dictionary<int, string> data = new Dictionary<int, string>();
 
-            string query = "SELECT DISTINCT i.intCategoryId, m.strDescription, FROM Intensity i	INNER JOIN ABMap m ON m.intCategoryId = i.intCategoryId";
+            string query = "SELECT DISTINCT i.intCategoryId, m.strDescription FROM Intensity i INNER JOIN ABMap m ON m.intCategoryId = i.intCategoryId";
 
-            DataTable t = DB.Query(query, null);
+            DataTable t = DB.Query(query, "IOModel", null);
 
             foreach (DataRow r in t.Rows)
             {
@@ -82,19 +101,31 @@ namespace CompareIOModelToCensa
         {
             Dictionary<int, int> value = new Dictionary<int, int>();
 
+            List<string> d = new List<string>();
             List<string> description = new List<string>();
-            description.AddRange(fromDescription.Split(' '));
+            d.AddRange(fromDescription.Split(' ').Where(x => !Excludes.Contains(x.ToUpper())));
+
+            foreach (string s in d)
+            {
+                description.Add(s.Trim(new char[] { ' ', '.' }).ToUpper());
+            }
 
             int similarity = 0;
 
             foreach (int i in to.Keys)
             {
-                List<string> toDescription = new List<string>();
-                toDescription.AddRange(to[i].Split(' '));
+                List<string> toDesctiption = new List<string>();
+                List<string> t = new List<string>();
+                t.AddRange(to[i].Split(' ').Where(x => !Excludes.Contains(x.ToUpper())));
 
-                foreach (string s in description.Where(x => !Excludes.Contains(x)))
+                foreach (string s in t)
                 {
-                    if (toDescription.Where(x => !Excludes.Contains(x)).Contains(s))
+                    toDesctiption.Add( s.Trim(new char[]{' ', ','}).ToUpper());
+                }
+
+                foreach (string s in description)
+                {
+                    if (toDesctiption.Contains(s))
                     {
                         similarity++;
                     }

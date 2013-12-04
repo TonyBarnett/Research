@@ -39,6 +39,9 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UKPlc.SpendAnalysis">
+      <HintPath>..\..\..\..\Git\Atuk\lib\Builds\3.5\UKPlc.SpendAnalysis.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DB.cs" />
