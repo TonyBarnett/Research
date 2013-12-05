@@ -22,6 +22,7 @@ namespace CompareIOModelToCensa
                     _Excludes.Add("OF");
                     _Excludes.Add("&");
                     _Excludes.Add("PRODUCTS");
+                    _Excludes.Add("SERVICES");
                     //_Excludes.Add("");
                 }
 
@@ -104,7 +105,7 @@ namespace CompareIOModelToCensa
         {
             Dictionary<int, string> data = new Dictionary<int, string>();
 
-            string query = "SELECT DISTINCT i.intCategoryId, m.strDescription FROM Intensity i INNER JOIN ABMap m ON m.intCategoryId = i.intCategoryId";
+            string query = "SELECT DISTINCT i.intCategoryId, c.strDescription FROM Intensity i INNER JOIN Category c ON c.intId = i.intCategoryId";
 
             DataTable t = DB.Query(query, "IOModel", null);
 

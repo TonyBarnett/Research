@@ -117,6 +117,24 @@ namespace CleanSicCodes
                 }
             }
 
+            List<List<object>> desc = new List<List<object>>();
+
+            using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\Description.csv"))
+            {
+                int k = 0;
+                r.ParseRecord();
+
+                while (!r.EndOfStream)
+                {
+                    List<string> records = r.ParseRecord();
+                    sicNasty.Add(records[0]);
+                    desc.Add(new List<object>());
+
+                    desc[k].Add(records[0].Replace("\r", ""));
+                    desc[k++].Add(records[1].Replace("\r", ""));
+                }
+            }
+
             List<List<object>> abMap = new List<List<object>>();
 
             using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\ABMap.csv"))
@@ -180,6 +198,7 @@ namespace CleanSicCodes
             DB.LoadToTable("A", a);
             DB.LoadToTable("B", b);
             DB.LoadToTable("F", F);
+            DB.LoadToTable("Category", desc);
             DB.LoadToTable("ABMap", abMap);
             DB.LoadToTable("SicDescription", d);
 

@@ -12,7 +12,7 @@ BEGIN
 	)
 	
 	
-	INSERT INTO ABMap(strA, strB, intCategoryId,strDescription) 
-	SELECT strA, strB, intCategoryId, strDescription
+	INSERT INTO ABMap(strA, strB, intCategoryId) 
+	SELECT strA, strB, intCategoryId
 	FROM INSERTED
 END
