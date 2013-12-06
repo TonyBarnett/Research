@@ -158,7 +158,7 @@ namespace CleanSicCodes
                 }
             }
 
-            List<List<object>> F = new List<List<object>>();
+            List<List<object>> f = new List<List<object>>();
 
             using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\F2010.csv"))
             {
@@ -168,11 +168,11 @@ namespace CleanSicCodes
                 {
                     List<string> record = r.ParseRecord();
                     
-                    F.Add(new List<object>());
+                    f.Add(new List<object>());
 
                     for (int i = 0; i < record.Count; i++)
                     {
-                        F[j].Add(record[i].Replace("\r", ""));
+                        f[j].Add(record[i].Replace("\r", ""));
                     }
                     j++;
                 }
@@ -192,15 +192,34 @@ namespace CleanSicCodes
                 }
             }
 
+            List<List<object>> map = new List<List<object>>();
+
+            using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\IOModel_c76.csv"))
+            {
+                r.ParseRecord();
+                j = 0;
+                while (!r.EndOfStream)
+                {
+                    List<string> records = r.ParseRecord();
+                    foreach (string s in records[1].Split(','))
+                    {
+                        map.Add(new List<object>());
+                        map[j].Add(records[0]);
+                        map[j++].Add(s.Replace("\r",""));
+                    }
+                }
+            }
+
             DB.CreateAndRunDatabase("IOModel", @"E:\SQL server Data\", @"D:\SQL logs\", new DirectoryInfo(@"E:\GitHub\Research\SQL\IOModel\"));
 
             DB.LoadToTable("AHeaders", aHeaders);
             DB.LoadToTable("A", a);
             DB.LoadToTable("B", b);
-            DB.LoadToTable("F", F);
+            DB.LoadToTable("F", f);
             DB.LoadToTable("Category", desc);
             DB.LoadToTable("ABMap", abMap);
             DB.LoadToTable("SicDescription", d);
+            DB.LoadToTable("IOModel_Censa76", map);
 
         }
 

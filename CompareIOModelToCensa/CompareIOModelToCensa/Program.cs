@@ -67,7 +67,7 @@ namespace CompareIOModelToCensa
                 }
             }
 
-            DB.LoadToTable("IOModel_Censa76", o);
+            DB.LoadToTable("IOModel_Censa76Temp", o);
 
             o = new List<List<object>>();
             j = 0;
@@ -82,7 +82,7 @@ namespace CompareIOModelToCensa
                 }
             }
 
-            DB.LoadToTable("IOModel_Censa123", o);
+            DB.LoadToTable("IOModel_Censa123Temp", o);
         }
 
         private static Dictionary<int, string> GetData(int censaId)
