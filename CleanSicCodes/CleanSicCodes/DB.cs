@@ -139,5 +139,10 @@ namespace CleanSicCodes
             }
 
         }
+
+        public static void RunFile(string databaseName, FileInfo file)
+        {
+            SqlRunner.Run(string.Format(_Connectionstring, databaseName),file,false);
+        }
     }
 }

@@ -1,38 +1,72 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using UKPlc.Csv;
-using UKPlc.SpendAnalysis;
-using System.IO;
-using System;
 
 namespace CleanSicCodes
 {
-    class Program
+    internal class Program
     {
-        static Dictionary<string, Dictionary<string, double>> ASic;
+        private static bool Restart = true;
+        //private static int Year;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            Createmodel();
-            CreateCSVs();
+            Dictionary<int, Thread> threads = new Dictionary<int, Thread>();
+            int year = 1997;
+            CreateModel(year);
+
+            for (year = 1998; year < 2011; year++)
+            {
+                Console.WriteLine(string.Format("running model for {0} part 1", year));
+                threads.Add(year, new Thread(new ParameterizedThreadStart(CreateModel)));
+                threads[year].Name = "Part 1 - " + year.ToString();
+                threads[year].Start(year);
+            }
+
+            foreach (Thread t in threads.Values)
+            {
+                t.Join();
+            }
+
+            threads.Add(1997, new Thread(new ParameterizedThreadStart(CreateCSVs)));
+            for (year = 1997; year < 2011; year++)
+            {
+                Console.WriteLine(string.Format("running model for {0} part 2", year));
+                threads[year] = new Thread(new ParameterizedThreadStart(CreateCSVs));
+                threads[year].Name = "Part 2 - " + year.ToString();
+                threads[year].Start(year);
+            }
+
+            foreach (Thread t in threads.Values)
+            {
+                t.Join();
+            }
 
             Console.WriteLine("Now go and run \"IOModel.m\" in Matlab\nThen press <return>");
             Console.ReadLine();
-            WriteIntensities();
+
+            for (year = 1997; year < 2011; year++)
+            {
+                Console.WriteLine(string.Format("Writing intensities for {0}", year));
+                WriteIntensities(year);
+                Restart = false;
+            }
         }
 
-        static void Createmodel()
+        private static void CreateModel(object year)
         {
+            Dictionary<string, Dictionary<string, double>> ASic = new Dictionary<string, Dictionary<string, double>>();
             Dictionary<string, Dictionary<string, string>> description = new Dictionary<string, Dictionary<string, string>>();
-            ASic = new Dictionary<string, Dictionary<string, double>>();
+
             List<string> sicNasty = new List<string>();
-            using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\A2010.csv"))
+            List<string> headers = new List<string>();
+            using (CsvReader r = new CsvReader(string.Format(@"E:\Dropbox\IO Model source data\A{0}.csv", year)))
             {
-                List<string> headers = new List<string>();
                 foreach (string s in r.ParseRecord())
                 {
                     if (s.Trim() != "")
@@ -77,6 +111,7 @@ namespace CleanSicCodes
                 foreach (string v in ASic[s].Keys)
                 {
                     a.Add(new List<object>());
+                    a[j].Add(year);
                     a[j].Add(s);
                     a[j].Add(v);
                     a[j++].Add(ASic[s][v]);
@@ -84,7 +119,7 @@ namespace CleanSicCodes
             }
 
             List<List<object>> aHeaders = new List<List<object>>();
-            j=0;
+            j = 0;
 
             foreach (List<object> o in a)
             {
@@ -97,7 +132,7 @@ namespace CleanSicCodes
 
             List<List<object>> b = new List<List<object>>();
 
-            using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\B2010.csv"))
+            using (CsvReader r = new CsvReader(string.Format(@"E:\Dropbox\IO Model source data\B{0}.csv", year)))
             {
                 int k = 0;
                 r.ParseRecord();
@@ -107,12 +142,16 @@ namespace CleanSicCodes
                     List<string> records = r.ParseRecord();
                     sicNasty.Add(records[0]);
                     b.Add(new List<object>());
-                    
+                    b[k].Add(year);
                     b[k].Add(records[0].Replace("\r", ""));
                     b[k++].Add(records[2].Replace("\r", ""));
                     if (!description["A"].ContainsKey(records[0]))
                     {
                         description["B"].Add(records[0], records[1]);
+                    }
+                    if (!headers.Contains(records[0]))
+                    {
+                        headers.Add(records[0]);
                     }
                 }
             }
@@ -145,7 +184,6 @@ namespace CleanSicCodes
                 {
                     List<string> record = r.ParseRecord();
 
-
                     if (!IsNull(record))
                     {
                         abMap.Add(new List<object>());
@@ -160,16 +198,17 @@ namespace CleanSicCodes
 
             List<List<object>> f = new List<List<object>>();
 
-            using (CsvReader r = new CsvReader(@"E:\Dropbox\IO Model source data\F2010.csv"))
+            using (CsvReader r = new CsvReader(string.Format(@"E:\Dropbox\IO Model source data\F{0}.csv", year)))
             {
                 r.ParseRecord();
                 j = 0;
                 while (!r.EndOfStream)
                 {
                     List<string> record = r.ParseRecord();
-                    
+
                     f.Add(new List<object>());
 
+                    f[j].Add(year);
                     for (int i = 0; i < record.Count; i++)
                     {
                         f[j].Add(record[i].Replace("\r", ""));
@@ -186,9 +225,9 @@ namespace CleanSicCodes
                 foreach (string key in description[jay].Keys)
                 {
                     d.Add(new List<object>());
-                    d[kay].Add(jay);
                     d[kay].Add(key);
-                    d[kay++].Add(description[jay][key].Replace("'", "''"));
+                    d[kay].Add(description[jay][key].Replace("'", "''"));
+                    d[kay++].Add(jay);
                 }
             }
 
@@ -205,80 +244,114 @@ namespace CleanSicCodes
                     {
                         map.Add(new List<object>());
                         map[j].Add(records[0]);
-                        map[j++].Add(s.Replace("\r",""));
+                        map[j++].Add(s.Replace("\r", ""));
                     }
                 }
             }
 
-            DB.CreateAndRunDatabase("IOModel", @"E:\SQL server Data\", @"D:\SQL logs\", new DirectoryInfo(@"E:\GitHub\Research\SQL\IOModel\"));
+            if (Restart)
+            {
+                DB.CreateDatabase("IOModel", @"E:\SQL server Data\", @"D:\SQL logs\");
+                DB.RunFile("IOModel", new FileInfo(@"E:\GitHub\Research\SQL\IOModel\000-Tables.sql"));
 
-            DB.LoadToTable("AHeaders", aHeaders);
+                DB.LoadToTable("Category", desc);
+                DB.LoadToTable("SicDescription", d);
+                DB.LoadToTable("ABMap", abMap);
+                DB.LoadToTable("IOModel_Censa76", map);
+
+                List<List<object>> y = new List<List<object>>();
+                for (int i = 1997; i < 2012; i++)
+                {
+                    y.Add(new List<object>());
+                    y[i - 1997].Add(i);
+                }
+                DB.LoadToTable("ModelYear", y);
+                Restart = false;
+            }
+
             DB.LoadToTable("A", a);
             DB.LoadToTable("B", b);
             DB.LoadToTable("F", f);
-            DB.LoadToTable("Category", desc);
-            DB.LoadToTable("ABMap", abMap);
-            DB.LoadToTable("SicDescription", d);
-            DB.LoadToTable("IOModel_Censa76", map);
-
         }
 
-        static void CreateCSVs()
+        private static void CreateCSVs(object year)
         {
-            List<string> directories = new List<string>() { 
-                //@"E:\Dropbox\IO Model source data\MatlabData\", 
-                @"E:\Dropbox\matlabFiles\Inputs\" 
+            List<string> directories = new List<string>() {
+                //@"E:\Dropbox\IO Model source data\MatlabData\",
+                @"E:\Dropbox\matlabFiles\Inputs\"
             };
 
             DataTable a = DB.Query(
                 "SELECT f.intCategoryId AS intFromId, t.intCategoryId AS intToId, SUM(ISNULL(a.monTotal,0))/COUNT(*) AS monTotal " +
                 "FROM A a  " +
-                "   INNER JOIN ABMap f ON f.strA = a.strSic2007From " +
-                "   INNER JOIN ABMap t ON t.strA = a.strSic2007To " +
-                "GROUP BY f.intCategoryId, t.intCategoryId",
-                "IOModel", null
+                "   INNER JOIN ( " +
+                "		SELECT DISTINCT strA, intCategoryId " +
+                "		FROM ABMap m " +
+                "   ) f ON f.strA = a.strSic2007From " +
+                "   INNER JOIN ( " +
+                "		SELECT DISTINCT strA, intCategoryId " +
+                "		FROM ABMap m " +
+                "   ) t ON t.strA = a.strSic2007To " +
+                "WHERE a.intYear = @Year " +
+                "GROUP BY f.intCategoryId, t.intCategoryId " +
+                "ORDER BY f.intCategoryId, t.intCategoryId ",
+                "IOModel", new Dictionary<string, object>() { { "Year", year } }
             );
 
-            DataTable e = DB.Query(
+            DataTable b = DB.Query(
                 "SELECT m.intCategoryId, " +
-                "	CASE WHEN SUM(f.monTotal) = 0 THEN 0 " + 
-                "		ELSE SUM(b.fltCO2)/ SUM(f.monTotal) " + 
-                "	END AS fltCO2 " + 
-                "FROM B b " + 
-                "	INNER JOIN ABMap m ON m.strB = b.strSic2007 " + 
-                "	LEFT JOIN F f ON f.strSic2007 = m.strA " + 
-                "GROUP BY m.intCategoryId",
-                "IOModel", null
+                "	CASE WHEN SUM(f.monTotal) = 0 THEN 0 " +
+                "		ELSE SUM(b.fltCO2)/ SUM(f.monTotal) " +
+                "	END AS fltCO2 " +
+                "FROM B b " +
+                "	INNER JOIN ( " +
+                "		SELECT DISTINCT strB, intCategoryId " +
+                "		FROM ABMap m " +
+                "	) m ON m.strB = b.strSic2007 " +
+                "	INNER JOIN ( " +
+                "		SELECT DISTINCT strA, intCategoryId " +
+                "		FROM ABMap m " +
+                "	) AS a ON a.intCategoryId = m.intCategoryId " +
+                "	INNER JOIN F f ON f.strSic2007 = a.strA " +
+                "WHERE b.intYear = @Year " +
+                "GROUP BY m.intCategoryId " +
+                "ORDER BY m.intCategoryId ",
+                "IOModel", new Dictionary<string, object>() { { "Year", year } }
             );
 
             DataTable f = DB.Query(
                 "SELECT intCategoryId, SUM(ISNULL(monTotal, 0)) AS monTotal " +
-                "FROM ABMap m " +
+                "FROM ( " +
+                "		SELECT DISTINCT strA, intCategoryId " +
+                "		FROM ABMap m " +
+                ") m " +
                 "	LEFT JOIN F f  ON f.strSic2007 = m.strA " +
-                "GROUP BY intCategoryId",
-                "IOModel", null
+                "WHERE f.intYear = @Year " +
+                "GROUP BY intCategoryId " +
+                "ORDER BY intCategoryId",
+                "IOModel", new Dictionary<string, object>() { { "Year", year } }
             );
 
             foreach (string dir in directories)
             {
-                WriteToCsv(new FileInfo(dir + "B.csv"), e, new List<string>() { "fltCO2" });
-                WriteToCsv(new FileInfo(dir + "F.csv"), f, new List<string>() { "monTotal" });
+                WriteToCsv(new FileInfo(string.Format("{0}B{1}.csv", dir, year)), b, new List<string>() { "fltCO2" });
+                WriteToCsv(new FileInfo(string.Format("{0}F{1}.csv", dir, year)), f, new List<string>() { "monTotal" });
                 DataTable aMatrix = GetAMatrix(a);
-                WriteToCsv(new FileInfo(dir + "A.csv"), aMatrix, null);
-
+                WriteToCsv(new FileInfo(string.Format("{0}A{1}.csv", dir, year)), aMatrix, null);
             }
         }
 
-        static void WriteIntensities()
+        private static void WriteIntensities(int year)
         {
             List<List<object>> o = new List<List<object>>();
-            using (CsvReader r = new CsvReader(@"E:\Dropbox\matlabFiles\VariableRecords\IOModel.csv"))
+            using (CsvReader r = new CsvReader(string.Format(@"E:\Dropbox\matlabFiles\VariableRecords\IOModel{0}.csv", year)))
             {
                 int i = 0;
-                while(!r.EndOfStream)
+                while (!r.EndOfStream)
                 {
                     o.Add(new List<object>());
                     List<string> thing = r.ParseRecord();
+                    o[i].Add(year);
                     foreach (string t in thing)
                     {
                         o[i].Add(t);
@@ -289,7 +362,7 @@ namespace CleanSicCodes
 
             DB.LoadToTable("Intensity", o);
         }
-        
+
         private static void WriteToCsv(FileInfo file, DataTable data, List<string> columnsToWrite)
         {
             using (CsvWriter w = new CsvWriter(file.FullName))
@@ -306,7 +379,7 @@ namespace CleanSicCodes
                     }
                     else
                     {
-                        foreach(object o in row.ItemArray)
+                        foreach (object o in row.ItemArray)
                         {
                             cols.Add(o);
                         }
@@ -349,7 +422,7 @@ namespace CleanSicCodes
                 }
                 a.Rows.Add(o);
             }
-            
+
             return a;
         }
 
@@ -388,7 +461,7 @@ namespace CleanSicCodes
             return false;
         }
 
-        static StringBuilder NiceifySic(string regexPattern, string nastySic)
+        private static StringBuilder NiceifySic(string regexPattern, string nastySic)
         {
             Match m = Regex.Match(nastySic, regexPattern);
 
@@ -409,7 +482,7 @@ namespace CleanSicCodes
         /// </summary>
         /// <param name="nastySic"></param>
         /// <returns></returns>
-        static List<string> SplitHyphen(string nastySic)
+        private static List<string> SplitHyphen(string nastySic)
         {
             string[] blah = nastySic.Replace("(", "").Replace(")", "").Split('-');
             List<string> ss = new List<string>();
@@ -420,7 +493,7 @@ namespace CleanSicCodes
             return ss;
         }
 
-        static string RemoveBrackets(string thing)
+        private static string RemoveBrackets(string thing)
         {
             return thing.Replace("(", "").Replace(")", "");
         }
