@@ -313,7 +313,7 @@ namespace CleanSicCodes
                 "		FROM ABMap m " +
                 "	) AS a ON a.intCategoryId = m.intCategoryId " +
                 "	INNER JOIN F f ON f.strSic2007 = a.strA " +
-                "WHERE b.intYear = @Year " +
+                "WHERE b.intYear = @Year AND f.intYear = @Year " +
                 "GROUP BY m.intCategoryId " +
                 "ORDER BY m.intCategoryId ",
                 "IOModel", new Dictionary<string, object>() { { "Year", year } }
