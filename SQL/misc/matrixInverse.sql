@@ -4,6 +4,11 @@ CREATE TYPE tab AS TABLE (
 	fltValue float NOT NULL
 )
 
+CREATE TYPE vec AS TABLE(
+	intId int NOT NULL PRIMARY KEY,
+	fltValue float NOT NULL
+)
+
 CREATE PROCEDURE InvertMatrix 
 (@a tab READONLY)
 AS
@@ -13,19 +18,17 @@ BEGIN
 	DECLARE @value float = 0.0
 	DECLARE @counter int= 0
 
-	SELECT *
-	INTO #a
-	FROM A
-
-
 	SELECT intFrom, intTo, 
 		CASE 
 			WHEN intFrom = intTo THEN 1.00
 			ELSE 0.0 
-		END AS monTotal
+		END AS fltValue
 	INTO #I	
-	FROM #a
-
+	FROM @a
+	
+	SELECT *
+	INTO #a
+	FROM @a
 
 	SELECT @rowCount = COUNT(*) + 1
 	FROM #a a
@@ -34,16 +37,16 @@ BEGIN
 	-- Loop over each column
 	WHILE @index != @rowCount
 	BEGIN
-		SELECT @value = monTotal
+		SELECT @value = fltValue
 		FROM #a
 		WHERE intFrom = @index AND intTo = @index
 		
 		IF @value != 0
 			BEGIN
-			UPDATE #a SET monTotal = monTotal / @value
+			UPDATE #a SET fltValue = fltValue / @value
 			WHERE intFrom = @index
 			
-			UPDATE #I SET monTotal = monTotal / @value
+			UPDATE #I SET fltValue = fltValue / @value
 			WHERE intFrom = @index
 		END
 		ELSE IF @value = 0
@@ -56,7 +59,7 @@ BEGIN
 			BEGIN
 				SELECT @counter = @counter + 1
 				
-				SELECT @value = monTotal
+				SELECT @value = fltValue
 				FROM #a
 				WHERE intFrom = @counter
 					AND intTo = @index
@@ -64,13 +67,13 @@ BEGIN
 
 			
 			-- Then add that row to the @index row and divide by that value
-			UPDATE a SET a.monTotal = (a.monTotal + b.monTotal) / @value
+			UPDATE a SET a.fltValue = (a.fltValue + b.fltValue) / @value
 			FROM #a a
 				INNER JOIN #a b ON b.intTo = a.intTo
 			WHERE a.intFrom = @index AND b.intFrom = @counter
 			
 			-- Also on (what was) the indentity matrix
-			UPDATE a SET a.monTotal = (a.monTotal + b.monTotal) / @value
+			UPDATE a SET a.fltValue = (a.fltValue + b.fltValue) / @value
 			FROM #I a
 				INNER JOIN #I b ON b.intTo = a.intTo
 			WHERE a.intFrom = @index AND b.intFrom = @counter
@@ -82,18 +85,18 @@ BEGIN
 		WHILE @counter < @rowCount
 		BEGIN	
 		
-			SELECT @value = monTotal
+			SELECT @value = fltValue
 			FROM #a
 			WHERE intFrom = @counter AND intTo = @index
 
 			IF @value != 0
 			BEGIN
-				UPDATE a SET a.monTotal = a.monTotal - (b.monTotal * @value)
+				UPDATE a SET a.fltValue = a.fltValue - (b.fltValue * @value)
 				FROM #a a 
 					INNER JOIN #a b ON b.intFrom = @index AND b.intTo = a.intTo
 				WHERE a.intFrom = @counter
 				
-				UPDATE a SET a.monTotal = a.monTotal - (b.monTotal * @value)
+				UPDATE a SET a.fltValue = a.fltValue - (b.fltValue * @value)
 				FROM #I a 
 					INNER JOIN #I b ON b.intFrom = @index AND b.intTo = a.intTo
 				WHERE a.intFrom = @counter
@@ -111,18 +114,18 @@ BEGIN
 		WHILE @counter > 0
 		BEGIN
 
-			SELECT @value = b.monTotal
+			SELECT @value = b.fltValue
 			FROM #a a
 				INNER JOIN #a b ON b.intTo = a.intTo AND b.intTo = a.intFrom
 			WHERE a.intFrom = @index AND b.intFrom = @counter
 			
-			UPDATE b SET b.monTotal = b.monTotal - a.monTotal * @value
+			UPDATE b SET b.fltValue = b.fltValue - a.fltValue * @value
 			FROM #a a
 				INNER JOIN #a b ON b.intTo = a.intTo
 			WHERE a.intFrom = @index AND b.intFrom = @counter
 			
 			
-			UPDATE b SET b.monTotal = b.monTotal - a.monTotal * @value
+			UPDATE b SET b.fltValue = b.fltValue - a.fltValue * @value
 			FROM #I a
 				INNER JOIN #I b ON b.intTo = a.intTo
 			WHERE a.intFrom = @index AND b.intFrom = @counter
@@ -134,14 +137,22 @@ BEGIN
 	END
 
 	SELECT *
-	FROM #a
-	ORDER BY intFrom, intTo
-
-	SELECT *
 	FROM #I
 	ORDER BY intFrom, intTo
 
 	DROP TABLE #a
 	DROP TABLE #I
 
+END
+
+CREATE PROCEDURE MultiplyMatrixByVector
+(@a AS tab READONLY, @b AS vec READONLY)
+AS
+BEGIN
+	SELECT a.intFrom, SUM(a.fltValue * b.fltValue) AS fltValue
+	FROM @a a
+		INNER JOIN @b b ON b.intId = a.intTo
+	GROUP BY intFrom
+	ORDER BY a.intFrom
+	
 END
