@@ -5,7 +5,7 @@ CREATE TYPE tab AS TABLE (
 )
 
 CREATE TYPE vec AS TABLE(
-	intId int NOT NULL PRIMARY KEY,
+	intId    int   NOT NULL PRIMARY KEY,
 	fltValue float NOT NULL
 )
 
@@ -19,10 +19,10 @@ BEGIN
 	DECLARE @counter int= 0
 
 	SELECT intFrom, intTo, 
-		CASE 
+		CAST(CASE 
 			WHEN intFrom = intTo THEN 1.00
 			ELSE 0.0 
-		END AS fltValue
+		END AS float) AS fltValue
 	INTO #I	
 	FROM @a
 	
