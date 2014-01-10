@@ -216,4 +216,4 @@ pip-log.txt
 #############
 ## Other
 #############
-*.details.txt
+*detail-log.txt
