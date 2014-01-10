@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using UKPlc.SpendAnalysis;
 using System.IO;
+using System.Text;
+using UKPlc.SpendAnalysis;
 
 namespace CleanSicCodes
 {
-    static class DB
+    internal static class DB
     {
-        private static string _Connectionstring = "Server=localhost; database={0}; uid=sa; pwd=deter101!; Min Pool Size=1; Max Pool Size=1000; Pooling=true; Connect Timeout=40000;packet size=4096";
+        private static string _Connectionstring = "Server=localhost; database={0}; uid=sa; pwd=deter101; Min Pool Size=1; Max Pool Size=1000; Pooling=true; Connect Timeout=40000;packet size=4096";
 
         public static DataTable Select(string query)
         {
@@ -46,8 +44,6 @@ namespace CleanSicCodes
             string insert = "INSERT INTO {0}({1}) VALUES ({2})";
             List<string> columns = new List<string>();
 
-
-
             using (SqlCommand cmd = new SqlCommand(select))
             {
                 Database.AddParameterWithValue(cmd, "@tableName", tableName);
@@ -68,9 +64,9 @@ namespace CleanSicCodes
             {
                 StringBuilder val = new StringBuilder();
 
-                for (int i = 0;i<value.Count;i++)
+                for (int i = 0; i < value.Count; i++)
                 {
-                    val.Append(string.Format("{0},", columns[i].Substring(0,3) == "str" ? "'" +  value[i].ToString() + "'": value[i].ToString()));
+                    val.Append(string.Format("{0},", columns[i].Substring(0, 3) == "str" ? "'" + value[i].ToString() + "'" : value[i].ToString()));
                 }
 
                 using (SqlCommand cmd = new SqlCommand(string.Format(insert, tableName, col.ToString().Substring(0, col.Length - 1), val.ToString().Substring(0, val.Length - 1))))
@@ -99,7 +95,6 @@ namespace CleanSicCodes
 
         public static void CreateDatabase(string databaseName, string dataDirectory, string logDirectory)
         {
-
             using (SqlCommand cmd = new SqlCommand(
               string.Format(
                   "IF EXISTS (SELECT name FROM sys.databases WHERE name = N'{0}') " +
@@ -111,7 +106,7 @@ namespace CleanSicCodes
                 Database.ExecuteNonQuery(
                     string.Format(
                         "Min Pool Size=1; Max Pool Size=1; Pooling=false; Connect Timeout=40000; " +
-                        "packet size=4096; Server={0}; uid=sa; pwd={1};", "localhost", "deter101!"
+                        "packet size=4096; Server={0}; uid=sa; pwd={1};", "localhost", "deter101"
                     ),
                 cmd
                 );
@@ -133,16 +128,15 @@ namespace CleanSicCodes
                 Database.ExecuteNonQuery(
                     string.Format(
                         "Min Pool Size=1; Max Pool Size=1; Pooling=false; Connect Timeout=40000; " +
-                        "packet size=4096; Server={0}; uid=sa; pwd={1};", "localhost", "deter101!"),
+                        "packet size=4096; Server={0}; uid=sa; pwd={1};", "localhost", "deter101"),
                 cmd
                 );
             }
-
         }
 
         public static void RunFile(string databaseName, FileInfo file)
         {
-            SqlRunner.Run(string.Format(_Connectionstring, databaseName),file,false);
+            SqlRunner.Run(string.Format(_Connectionstring, databaseName), file, false);
         }
     }
 }
