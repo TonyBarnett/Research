@@ -16,8 +16,12 @@ namespace CleanSicCodes
 
         private static void Main(string[] args)
         {
+            Console.WriteLine("Press <return> to begin");
+            Console.ReadLine();
             Dictionary<int, Thread> threads = new Dictionary<int, Thread>();
             int year = 1997;
+            // Create model for first year seperately to do first time set up without the possibility of
+            // trying to access tables that don't yet exist.
             CreateModel(year);
 
             for (year = 1998; year < 2011; year++)
@@ -28,9 +32,11 @@ namespace CleanSicCodes
                 threads[year].Start(year);
             }
 
+            // Wait until all threads have finished.
             foreach (Thread t in threads.Values)
             {
                 t.Join();
+                Console.WriteLine("Finished processing " + t.Name);
             }
 
             threads.Add(1997, new Thread(new ParameterizedThreadStart(CreateCSVs)));
@@ -56,6 +62,9 @@ namespace CleanSicCodes
                 WriteIntensities(year);
                 Restart = false;
             }
+
+            Console.WriteLine("Finished, press any key to quit.");
+            Console.Read();
         }
 
         private static void CreateModel(object year)
@@ -98,7 +107,7 @@ namespace CleanSicCodes
                         thing = records[0];
                         Dictionary<string, double> t = ASic[thing];
                         // We want the proportion of each element in each row divided by the row total.
-                        ASic[records[0]].Add(headers[i - 2], double.Parse(records[records.Count - 1]) == 0 ? 0 : double.Parse(records[i] == "" ? "0" : records[i]) / double.Parse(records[records.Count - 1]));
+                        ASic[records[0]].Add(headers[i - 2], double.Parse(records[i] == "" ? "0" : records[i]));
                     }
                 }
             }
@@ -282,16 +291,30 @@ namespace CleanSicCodes
             };
 
             DataTable a = DB.Query(
-                "SELECT f.intCategoryId AS intFromId, t.intCategoryId AS intToId, SUM(ISNULL(a.monTotal,0))/COUNT(*) AS monTotal " +
-                "FROM A a  " +
-                "   INNER JOIN ( " +
+                "SELECT f.intCategoryId AS intFromId, t.intCategoryId AS intToId,  " +
+                "	CASE  " +
+                "		WHEN SUM(at.monTotal) = 0 THEN 0 " +
+                "		ELSE SUM(CAST(a.monTotal AS float)) / SUM(CAST(at.monTotal AS float)) " +
+                "	END AS monTotal " +
+                "FROM A a " +
+                "	INNER JOIN ( " +
                 "		SELECT DISTINCT strA, intCategoryId " +
                 "		FROM ABMap m " +
-                "   ) f ON f.strA = a.strSic2007From " +
-                "   INNER JOIN ( " +
+                "	) f ON f.strA = a.strSic2007From " +
+                "	INNER JOIN ( " +
                 "		SELECT DISTINCT strA, intCategoryId " +
                 "		FROM ABMap m " +
-                "   ) t ON t.strA = a.strSic2007To " +
+                "	) t ON t.strA = a.strSic2007To " +
+                "	INNER JOIN ( " +
+                "		SELECT m.intCategoryId, SUM(a.monTotal) AS monTotal " +
+                "		FROM A a " +
+                "			INNER JOIN ( " +
+                "				SELECT DISTINCT strA, intCategoryId " +
+                "				FROM ABMap " +
+                "			) m ON m.strA = a.strSic2007To " +
+                "		WHERE intYear = @Year " +
+                "		GROUP BY m.intCategoryId " +
+                "	) at ON at.intCategoryId = f.intCategoryId " +
                 "WHERE a.intYear = @Year " +
                 "GROUP BY f.intCategoryId, t.intCategoryId " +
                 "ORDER BY f.intCategoryId, t.intCategoryId ",
@@ -299,23 +322,25 @@ namespace CleanSicCodes
             );
 
             DataTable b = DB.Query(
-                "SELECT m.intCategoryId, " +
-                "	CASE WHEN SUM(f.monTotal) = 0 THEN 0 " +
-                "		ELSE SUM(b.fltCO2)/ SUM(f.monTotal) " +
-                "	END AS fltCO2 " +
-                "FROM B b " +
-                "	INNER JOIN ( " +
+                "SELECT b.intCategoryId, b.fltCO2 / f.monTotal AS fltCO2 " +
+                "FROM ( " +
+                "	SELECT m.intCategoryId, SUM(b.fltCO2) AS fltCO2 " +
+                "	FROM ( " +
                 "		SELECT DISTINCT strB, intCategoryId " +
                 "		FROM ABMap m " +
-                "	) m ON m.strB = b.strSic2007 " +
-                "	INNER JOIN ( " +
-                "		SELECT DISTINCT strA, intCategoryId " +
-                "		FROM ABMap m " +
-                "	) AS a ON a.intCategoryId = m.intCategoryId " +
-                "	INNER JOIN F f ON f.strSic2007 = a.strA " +
-                "WHERE b.intYear = @Year AND f.intYear = @Year " +
-                "GROUP BY m.intCategoryId " +
-                "ORDER BY m.intCategoryId ",
+                "		) m " +
+                "		INNER JOIN B b ON b.strSic2007 = m.strB AND b.intYear = @Year " +
+                "	GROUP BY m.intCategoryId " +
+                ") AS b " +
+                "	INNER JOIN( " +
+                "		SELECT m.intCategoryId, SUM(CAST(f.monTotal AS float)) AS monTotal " +
+                "		FROM ( " +
+                "			SELECT DISTINCT strA, intCategoryId " +
+                "			FROM ABMap m " +
+                "			) m " +
+                "			INNER JOIN F f ON f.strSic2007 = m.strA AND f.intYear = @Year " +
+                "		GROUP BY m.intCategoryId " +
+                "	) AS f ON f.intCategoryId = b.intCategoryId ",
                 "IOModel", new Dictionary<string, object>() { { "Year", year } }
             );
 
