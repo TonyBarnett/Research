@@ -36,7 +36,7 @@ INSERT INTO clasSystem VALUES('SIC31', 'Standard Industry classification version
 INSERT INTO clasSystem VALUES('SIC4', 'Standard Industry classification version 4')
 INSERT INTO clasSystem VALUES('SITC3', 'Standard Industry trade classification version 3')
 INSERT INTO clasSystem VALUES('SITC4', 'Standard Industry trade classification version 4')
-
+INSERT INTO clasSystem VALUES ('UNFCCC', 'UNFCCC''s bespoke classification system')
 
 -- V A L U E S
 INSERT INTO clasValue (strSystemId, strValue, strDescription) 
@@ -59,6 +59,9 @@ INSERT INTO clasValue (strSystemId, strValue, strDescription)
 SELECT 'SITC4', strCode,strText
 FROM RawData..SITC4
 
+INSERT INTO clasValue (strSystemId, strValue, strDescription)
+SELECT 'UNFCCC', strSector_code, strSector_name
+FROM RawData..UNFCCC
 
 -- M A P S
 INSERT INTO clasMap (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value)
