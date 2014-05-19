@@ -49,3 +49,20 @@ CREATE TABLE SysValue(
 	CONSTRAINT SysValue_FK_clasValueFrom FOREIGN KEY (intSystemId, strValueFrom) REFERENCES clasValue (intSystemId, strValue),
 	CONSTRAINT SysValue_FK_clasValueTo   FOREIGN KEY (intSystemId, strValueTo)   REFERENCES clasValue (intSystemId, strValue)
 )
+
+CREATE TABLE MatchGuess (
+	strSystem1Id         varchar(256) NOT NULL,
+	strValue1            varchar(64)  NOT NULL,
+	strSystem2Id         varchar(256) NOT NULL,
+	strValue2            varchar(64)  NOT NULL,
+	fltWordSimilarity    float            NULL,
+	fltSynonymSimilarity float            NULL,
+	
+	CONSTRAINT MatchGuess_PK PRIMARY KEY (strSystem1Id, strValue1, strSystem2Id, strValue2)
+)
+
+CREATE TABLE StopWord (
+	strStopWord varchar(64) NOT NULL,
+	
+	CONSTRAINT StopWord_PK PRIMARY KEY (strStopWord)
+)

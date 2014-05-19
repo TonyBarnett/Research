@@ -11,6 +11,7 @@ IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'dataSourcecValueLink') BEGI
 IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'cValueLink')           BEGIN DROP TABLE cValueLink           END
 IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'cSystemLink')          BEGIN DROP TABLE cSystemLink          END
 IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'dataSource')           BEGIN DROP TABLE dataSource           END
+
 CREATE TABLE cSystemLink (
 	strClasSystemId varchar(32) NOT NULL,
 	
@@ -39,7 +40,8 @@ CREATE TABLE dataType(
 	strDataSourceId varchar(32) NOT NULL,
 	strDataType     varchar(32) NOT NULL,
 	
-	CONSTRAINT dataType_PK PRIMARY KEY (strDataSourceId, strDataType)
+	CONSTRAINT dataType_PK            PRIMARY KEY (strDataSourceId, strDataType),
+	CONSTRAINT dataType_FK_dataSource FOREIGN KEY (strDataSourceId) REFERENCES dataSource (strSource)
 )
 
 CREATE TABLE sorCategory ( -- The surrogate key is so that you can store values without storing types.

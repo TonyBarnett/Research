@@ -14,6 +14,7 @@ CREATE TABLE clasValue (
 	strSystemId    varchar(128) NOT NULL,
 	strValue       varchar(32)  NOT NULL,
 	strDescription varchar(256) NOT NULL,
+	intLevel       int              NULL,
 	
 	CONSTRAINT clasValue_PK            PRIMARY KEY (strSystemId, strValue),
 	CONSTRAINT clasValue_FK_clasSystem FOREIGN KEY (strSystemId) REFERENCES clasSystem (strName)
@@ -39,28 +40,36 @@ INSERT INTO clasSystem VALUES('SITC4', 'Standard Industry trade classification v
 INSERT INTO clasSystem VALUES ('UNFCCC', 'UNFCCC''s bespoke classification system')
 
 -- V A L U E S
-INSERT INTO clasValue (strSystemId, strValue, strDescription) 
-SELECT 'SIC3', strCode, strDescription
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) 
+SELECT 'SIC3', strCode, strDescription, LEN(strCode)
 FROM RawData..SIC3
 
-INSERT INTO clasValue (strSystemId, strValue, strDescription) 
-SELECT 'SIC31', strCode, strDescription
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) 
+SELECT 'SIC31', strCode, strDescription, LEN(strCode)
 FROM RawData..SIC31
 
-INSERT INTO clasValue (strSystemId, strValue, strDescription) 
-SELECT 'SIC4', strCode, strDescription
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) 
+SELECT 'SIC4', strCode, strDescription, LEN(strCode)
 FROM RawData..SIC4
 
-INSERT INTO clasValue (strSystemId, strValue, strDescription) 
-SELECT 'SITC3', strCode, strDescription
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) 
+SELECT 'SITC3', strCode, strDescription,
+	CASE 
+		WHEN LEN(strCode) > 3 THEN LEN(strCode) - 1
+		ELSE LEN(strCode)
+	END
 FROM RawData..SITC3
 
-INSERT INTO clasValue (strSystemId, strValue, strDescription) 
-SELECT 'SITC4', strCode,strText
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) 
+SELECT 'SITC4', strCode, strText,
+	CASE 
+		WHEN LEN(strCode) > 3 THEN LEN(strCode) - 1
+		ELSE LEN(strCode)
+	END
 FROM RawData..SITC4
 
-INSERT INTO clasValue (strSystemId, strValue, strDescription)
-SELECT 'UNFCCC', strSector_code, strSector_name
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel)
+SELECT 'UNFCCC', strSector_code, strSector_name, (LEN(strSector_code) + 1) / 2
 FROM RawData..UNFCCC
 
 -- M A P S
