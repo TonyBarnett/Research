@@ -38,6 +38,7 @@ INSERT INTO clasSystem VALUES('SIC4', 'Standard Industry classification version 
 INSERT INTO clasSystem VALUES('SITC3', 'Standard Industry trade classification version 3')
 INSERT INTO clasSystem VALUES('SITC4', 'Standard Industry trade classification version 4')
 INSERT INTO clasSystem VALUES ('UNFCCC', 'UNFCCC''s bespoke classification system')
+INSERT INTO clasSystem VALUES ('Censa123', 'Censa123 codes used by GreenInsight')
 
 -- V A L U E S
 INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) 
@@ -72,6 +73,10 @@ INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel)
 SELECT 'UNFCCC', strSector_code, strSector_name, (LEN(strSector_code) + 1) / 2
 FROM RawData..UNFCCC
 
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel)
+SELECT 'Censa123', intIndex, strProductCategory, 1
+FROM RawData..Censa123
+
 -- M A P S
 INSERT INTO clasMap (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value)
 SELECT 'SIC3', strRev3, 'SIC31', strRev31
@@ -88,4 +93,3 @@ FROM RawData..SIC4_SIC31
 INSERT INTO clasMap (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value)
 SELECT 'SITC3', strS3, 'SITC4', strS4
 FROM RawData..SITC3_SITC4
-
