@@ -21,6 +21,6 @@ FROM (
 	SELECT a.strSystemId, a.strValue, a.strAncestor, m.*,
 		RANK() OVER (PARTITION BY a.strSystemId, a.strValue, m.strSystem2Id ORDER BY a.intBlob) AS intLevel
 	FROM AncestorValues a
-		INNER JOIN PotentialMatches2 m ON m.strSystem1Id = a.strSystemId AND m.strSystem1Value = a.strAncestor
+		INNER JOIN PotentialMatches m ON m.strSystem1Id = a.strSystemId AND m.strSystem1Value = a.strAncestor
 ) s
 WHERE s.intLevel = 1
