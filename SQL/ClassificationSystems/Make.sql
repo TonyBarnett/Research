@@ -15,9 +15,11 @@ CREATE TABLE clasValue (
 	strValue       varchar(32)  NOT NULL,
 	strDescription varchar(256) NOT NULL,
 	intLevel       int              NULL,
+	strParent      varchar(32)      NULL,
 	
-	CONSTRAINT clasValue_PK            PRIMARY KEY (strSystemId, strValue),
-	CONSTRAINT clasValue_FK_clasSystem FOREIGN KEY (strSystemId) REFERENCES clasSystem (strName)
+	CONSTRAINT clasValue_PK                     PRIMARY KEY (strSystemId, strValue),
+	CONSTRAINT clasValue_FK_clasSystem          FOREIGN KEY (strSystemId) REFERENCES clasSystem (strName),
+	CONSTRAINT clasValue_FK_clasValue_strParent FOREIGN KEY (strSystemId, strParent) REFERENCES clasValue (strSystemId, strValue)
 )
 
 CREATE TABLE clasMap (
@@ -25,10 +27,23 @@ CREATE TABLE clasMap (
 	strSystem1Value varchar(32)  NOT NULL,
 	strSystem2Id    varchar(128) NOT NULL,
 	strSystem2Value varchar(32)  NOT NULL,
+	fltWeight       float            NULL,
 	
 	CONSTRAINT clasMap_PK             PRIMARY KEY (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value),
 	CONSTRAINT clasMap_FK_clasValue_1 FOREIGN KEY (strSystem1Id, strSystem1Value) REFERENCES clasValue (strSystemId, strValue),
 	CONSTRAINT clasMap_FK_clasValue_2 FOREIGN KEY (strSystem2Id, strSystem2Value) REFERENCES clasValue (strSystemId, strValue)
+)
+
+CREATE TABLE PotentialMatches (
+	strSystem1Id    varchar(128) NOT NULL,
+	strSystem1Value varchar(32)  NOT NULL,
+	strSystem2Id    varchar(128) NOT NULL,
+	strSystem2Value varchar(32)  NOT NULL,
+	fltWeight       float            NULL,
+	
+	CONSTRAINT PotentialMatches_PK             PRIMARY KEY (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value),
+	CONSTRAINT PotentialMatches_FK_clasValue_1 FOREIGN KEY (strSystem1Id, strSystem1Value) REFERENCES clasValue (strSystemId, strValue),
+	CONSTRAINT PotentialMatches_FK_clasValue_2 FOREIGN KEY (strSystem2Id, strSystem2Value) REFERENCES clasValue (strSystemId, strValue)
 )
 
 -- S Y S T E M S

@@ -57,8 +57,10 @@ CREATE TABLE MatchGuess (
 	strValue2            varchar(64)  NOT NULL,
 	fltWordSimilarity    float            NULL,
 	fltSynonymSimilarity float            NULL,
+	fltWordSynSimilarity float            NULL,
 	
-	CONSTRAINT MatchGuess_PK PRIMARY KEY (strSystem1Id, strValue1, strSystem2Id, strValue2)
+	CONSTRAINT MatchGuess_PK PRIMARY KEY (strSystem1Id, strValue1, strSystem2Id, strValue2),
+	CONSTRAINT MatchGuess_strSystem2_strValue2_IX INDEX (strSystem2Id, strValue2)
 )
 
 CREATE TABLE StopWord (
