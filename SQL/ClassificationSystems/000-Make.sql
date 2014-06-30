@@ -46,6 +46,17 @@ CREATE TABLE PotentialMatches (
 	CONSTRAINT PotentialMatches_FK_clasValue_2 FOREIGN KEY (strSystem2Id, strSystem2Value) REFERENCES clasValue (strSystemId, strValue)
 )
 
+CREATE TABLE ManualMatches (
+	strSystem1Id    varchar(128) NOT NULL,
+	strSystem1Value varchar(32)  NOT NULL,
+	strSystem2Id    varchar(128) NOT NULL,
+	strSystem2Value varchar(32)  NOT NULL,
+	
+	CONSTRAINT ManualMatches_PK             PRIMARY KEY (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value),
+	CONSTRAINT ManualMatches_FK_clasValue_1 FOREIGN KEY (strSystem1Id, strSystem1Value) REFERENCES clasValue (strSystemId, strValue),
+	CONSTRAINT ManualMatches_FK_clasValue_2 FOREIGN KEY (strSystem2Id, strSystem2Value) REFERENCES clasValue (strSystemId, strValue)
+)
+
 -- S Y S T E M S
 INSERT INTO clasSystem VALUES('SIC3', 'Standard Industry classification version 3')
 INSERT INTO clasSystem VALUES('SIC31', 'Standard Industry classification version 3.1')
