@@ -1027,3 +1027,6 @@ INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSyste
 INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('UNFCCC', '7', 'Censa123', '120')
 INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('UNFCCC', '7', 'Censa123', '121')
 INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('UNFCCC', '7', 'Censa123', '122')
+
+INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('SIC3', 'H', 'Censa123', '121')
+INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('SIC31', 'H', 'Censa123', '121')
