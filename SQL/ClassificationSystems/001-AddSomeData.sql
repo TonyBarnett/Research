@@ -1030,3 +1030,9 @@ INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSyste
 
 INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('SIC3', 'H', 'Censa123', '121')
 INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('SIC31', 'H', 'Censa123', '121')
+
+INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('SITC3', 'I', 'Censa123', '100')
+INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('SITC3', 'I', 'Censa123', '102')
+INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('SITC3', 'II', 'Censa123', '100')
+INSERT INTO ManualMatches (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value) VALUES ('SITC3', 'II', 'Censa123', '102')
+
