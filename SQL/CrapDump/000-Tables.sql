@@ -63,6 +63,15 @@ CREATE TABLE MatchGuess (
 	CONSTRAINT MatchGuess_strSystem2_strValue2_IX INDEX (strSystem2Id, strValue2)
 )
 
+CREATE TABLE NBGuess (
+	strSystemId varchar(256) NOT NULL,
+	strValue    varchar(64) NOT NULL,
+	strTargetValue varchar(64) NOT NULL,
+	fltProbability float NULL,
+	
+	CONSTRAINT NBGuess_PK PRIMARY KEY (strSystemId, strValue, strTargetValue)
+)
+
 CREATE TABLE StopWord (
 	strStopWord varchar(64) NOT NULL,
 	
