@@ -1,3 +1,4 @@
+IF EXISTS (SELECT NULL FROM sys.tables WHERE name = 'linkTypeExample' ) BEGIN DROP TABLE lexlinks END
 IF EXISTS (SELECT NULL FROM sys.tables WHERE name = 'lexlinks' ) BEGIN DROP TABLE lexlinks END
 IF EXISTS (SELECT NULL FROM sys.tables WHERE name = 'semlinks' ) BEGIN DROP TABLE semlinks END
 IF EXISTS (SELECT NULL FROM sys.tables WHERE name = 'senses') BEGIN DROP TABLE senses END
@@ -191,3 +192,27 @@ CREATE TABLE lexlinks (
   CONSTRAINT fk_lexlinks_word2id FOREIGN KEY (word2id) REFERENCES words (wordid),
 
 )
+
+CREATE TABLE linkTypeExample (
+	linkId  int          NOT NULL,
+	example varchar(256)     NULL,
+	bolUseful bit        NOT NULL DEFAULT(0),
+	
+	CONSTRAINT linkTypeExample_PK PRIMARY KEY (linkId),
+	CONSTRAINT linkTypeExample_FK FOREIGN KEY (linkId) REFERENCES linktypes (linkid)
+)
+
+INSERT INTO linkTypeExample VALUES (1, 'e.g. sherry and drink.', 1)
+INSERT INTO linkTypeExample VALUES (2, 'e.g. drink and sherry.', 1)
+INSERT INTO linkTypeExample VALUES (3, 'e.g. Coca Cola and drink.', 1)
+INSERT INTO linkTypeExample VALUES (4, 'e.g. drink and Coca Cola.', 1)
+INSERT INTO linkTypeExample VALUES (11, 'e.g. blade and scalpel.', 1)
+INSERT INTO linkTypeExample VALUES (12, 'e.g. scalpel and blade.', 1)
+INSERT INTO linkTypeExample VALUES (13, 'e.g. Mars and Solar System.', 0)
+INSERT INTO linkTypeExample VALUES (14, 'e.g. Solar System and Mars.', 0)
+INSERT INTO linkTypeExample VALUES (15, 'e.g. book and paper.', 0)
+INSERT INTO linkTypeExample VALUES (16, 'e.g. paper and book.', 0)
+INSERT INTO linkTypeExample VALUES (21, 'e.g. fire and spark.', 0)
+INSERT INTO linkTypeExample VALUES (23, 'e.g. spark and fire.', 0)
+INSERT INTO linkTypeExample VALUES (30, 'e.g. black and white.', 0)
+INSERT INTO linkTypeExample VALUES (60, 'e.g. height and high.', 0)
