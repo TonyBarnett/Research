@@ -24,3 +24,17 @@ INSERT INTO GuessType VALUES('NB Target Synonyms')
 INSERT INTO GuessType VALUES('NB All Synonyms')
 
 INSERT INTO GuessType VALUES('Synonym compare')
+
+CREATE VIEW FinalGuess
+AS
+	SELECT r.strGuessType, r.strSystemId, r.strValue, r.strTargetValue, g.fltProbability
+	FROM (
+		SELECT strGuessType, strSystemId, strValue, strTargetValue, ROW_NUMBER () OVER (PARTITION BY strSystemId, strValue ORDER BY fltProbability DESC) AS intRank
+		FROM Guess
+	) r
+		INNER JOIN Guess g ON 
+			g.strGuessType = r.strGuessType AND 
+			g.strSystemId = r.strSystemId AND 
+			g.strValue = r.strValue AND 
+			g.strTargetValue = r.strTargetValue
+	WHERE r.intRank = 1
