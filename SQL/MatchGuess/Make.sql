@@ -29,7 +29,8 @@ CREATE VIEW FinalGuess
 AS
 	SELECT r.strGuessType, r.strSystemId, r.strValue, r.strTargetValue, g.fltProbability
 	FROM (
-		SELECT strGuessType, strSystemId, strValue, strTargetValue, ROW_NUMBER () OVER (PARTITION BY strSystemId, strValue ORDER BY fltProbability DESC) AS intRank
+		SELECT strGuessType, strSystemId, strValue, strTargetValue, 
+			ROW_NUMBER () OVER (PARTITION BY strSystemId, strValue ORDER BY fltProbability DESC) AS intRank
 		FROM Guess
 	) r
 		INNER JOIN Guess g ON 

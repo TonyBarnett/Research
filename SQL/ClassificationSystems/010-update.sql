@@ -176,3 +176,35 @@ UPDATE clasValue SET strParent = 'S' WHERE strSystemId = 'SIC4' AND strValue = '
 UPDATE clasValue SET strParent = 'T' WHERE strSystemId = 'SIC4' AND strValue = '97'
 UPDATE clasValue SET strParent = 'T' WHERE strSystemId = 'SIC4' AND strValue = '98'
 UPDATE clasValue SET strParent = 'U' WHERE strSystemId = 'SIC4' AND strValue = '99'
+
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel, strParent)
+SELECT strSystemId, strValue, strDescription, intLevel, strParent, LEN(strValue),
+	CASE 
+		WHEN LEN(strValue) = 4 THEN SUBSTRING(strValue, 0, LEN(strValue) - 1)
+		WHEN LEN(strValue) > 2 THEN SUBSTRING(strValue, 0, LEN(strValue))
+	END
+FROM clasValue 
+WHERE strSystemId = 'Nace2'
+	AND strParent IS NULL
+
+UPDATE clasValue SET strParent = 'A' WHERE strSystemId = 'Nace2' AND strValue IN ('01', '02', '03')
+UPDATE clasValue SET strParent = 'B' WHERE strSystemId = 'Nace2' AND strValue  IN ('05', '06', '07', '08', '09')
+UPDATE clasValue SET strParent = 'C' WHERE strSystemId = 'Nace2' AND strValue  IN ('10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33')
+UPDATE clasValue SET strParent = 'D' WHERE strSystemId = 'Nace2' AND strValue  IN ('35')
+UPDATE clasValue SET strParent = 'E' WHERE strSystemId = 'Nace2' AND strValue  IN ('36', '37', '38', '39')
+UPDATE clasValue SET strParent = 'F' WHERE strSystemId = 'Nace2' AND strValue  IN ('41', '42', '43')
+UPDATE clasValue SET strParent = 'G' WHERE strSystemId = 'Nace2' AND strValue  IN ('45', '46', '47')
+UPDATE clasValue SET strParent = 'H' WHERE strSystemId = 'Nace2' AND strValue  IN ('49', '50', '51', '52', '53')
+UPDATE clasValue SET strParent = 'I' WHERE strSystemId = 'Nace2' AND strValue  IN ('55', '56')
+UPDATE clasValue SET strParent = 'J' WHERE strSystemId = 'Nace2' AND strValue  IN ('58', '59', '60', '61', '62', '63')
+UPDATE clasValue SET strParent = 'K' WHERE strSystemId = 'Nace2' AND strValue  IN ('64', '65', '66')
+UPDATE clasValue SET strParent = 'L' WHERE strSystemId = 'Nace2' AND strValue  IN ('68')
+UPDATE clasValue SET strParent = 'M' WHERE strSystemId = 'Nace2' AND strValue  IN ('69', '70', '71', '72', '73', '74', '75')
+UPDATE clasValue SET strParent = 'N' WHERE strSystemId = 'Nace2' AND strValue  IN ('77', '78', '79', '80', '81', '82')
+UPDATE clasValue SET strParent = 'O' WHERE strSystemId = 'Nace2' AND strValue  IN ('84')
+UPDATE clasValue SET strParent = 'P' WHERE strSystemId = 'Nace2' AND strValue  IN ('85')
+UPDATE clasValue SET strParent = 'Q' WHERE strSystemId = 'Nace2' AND strValue  IN ('86', '87', '88')
+UPDATE clasValue SET strParent = 'R' WHERE strSystemId = 'Nace2' AND strValue  IN ('90', '91', '92', '93')
+UPDATE clasValue SET strParent = 'S' WHERE strSystemId = 'Nace2' AND strValue  IN ('94', '95', '96')
+UPDATE clasValue SET strParent = 'T' WHERE strSystemId = 'Nace2' AND strValue  IN ('97', '98')
+UPDATE clasValue SET strParent = 'U' WHERE strSystemId = 'Nace2' AND strValue  IN ('99')

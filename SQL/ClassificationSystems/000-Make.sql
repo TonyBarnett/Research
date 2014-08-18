@@ -65,6 +65,7 @@ INSERT INTO clasSystem VALUES('SITC3', 'Standard Industry trade classification v
 INSERT INTO clasSystem VALUES('SITC4', 'Standard Industry trade classification version 4')
 INSERT INTO clasSystem VALUES ('UNFCCC', 'UNFCCC''s bespoke classification system')
 INSERT INTO clasSystem VALUES ('Censa123', 'Censa123 codes used by GreenInsight')
+INSERT INTO clasSystem VALUES ('Nace2', 'Nace version 2')
 
 -- V A L U E S
 INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) 
@@ -102,6 +103,14 @@ FROM RawData..UNFCCC
 INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel)
 SELECT 'Censa123', intIndex, strProductCategory, 1
 FROM RawData..Censa123
+
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel)
+SELECT 'Nace2', strvalue, strDescription, 
+	CASE 
+		WHEN LEN(strValue)> 3 THEN LEN(strvalue) - 1 
+		ELSE LEN(strvalue) 
+	END
+FROM RawData..Nace2
 
 -- M A P S
 INSERT INTO clasMap (strSystem1Id, strSystem1Value, strSystem2Id, strSystem2Value)
