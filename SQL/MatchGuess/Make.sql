@@ -24,6 +24,8 @@ INSERT INTO GuessType VALUES('NB Target Synonyms')
 INSERT INTO GuessType VALUES('NB All Synonyms')
 
 INSERT INTO GuessType VALUES('Synonym compare')
+INSERT INTO GuessType VALUES('Naive Guess')
+INSERT INTO GuessType VALUES('Less Naive Guess')
 
 CREATE VIEW FinalGuess
 AS
