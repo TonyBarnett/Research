@@ -5,6 +5,7 @@
 CREATE TABLE clasSystem (
 	strName        varchar(128) NOT NULL,
 	strDescription varchar(256) NOT NULL,
+	bolUsed        bit          NOT NULL,
 	
 	CONSTRAINT clasSystem_PK PRIMARY KEY (strName)
 )
@@ -58,14 +59,14 @@ CREATE TABLE ManualMatches (
 )
 
 -- S Y S T E M S
-INSERT INTO clasSystem VALUES('SIC3', 'Standard Industry classification version 3')
-INSERT INTO clasSystem VALUES('SIC31', 'Standard Industry classification version 3.1')
-INSERT INTO clasSystem VALUES('SIC4', 'Standard Industry classification version 4')
-INSERT INTO clasSystem VALUES('SITC3', 'Standard Industry trade classification version 3')
-INSERT INTO clasSystem VALUES('SITC4', 'Standard Industry trade classification version 4')
-INSERT INTO clasSystem VALUES ('UNFCCC', 'UNFCCC''s bespoke classification system')
-INSERT INTO clasSystem VALUES ('Censa123', 'Censa123 codes used by GreenInsight')
-INSERT INTO clasSystem VALUES ('Nace2', 'Nace version 2')
+INSERT INTO clasSystem VALUES('SIC3', 'Standard Industry classification version 3', 0)
+INSERT INTO clasSystem VALUES('SIC31', 'Standard Industry classification version 3.1', 0)
+INSERT INTO clasSystem VALUES('SIC4', 'Standard Industry classification version 4', 1)
+INSERT INTO clasSystem VALUES('SITC3', 'Standard Industry trade classification version 3', 0)
+INSERT INTO clasSystem VALUES('SITC4', 'Standard Industry trade classification version 4', 1)
+INSERT INTO clasSystem VALUES ('UNFCCC', 'UNFCCC''s bespoke classification system', 1)
+INSERT INTO clasSystem VALUES ('Censa123', 'Censa123 codes used by GreenInsight', 0)
+INSERT INTO clasSystem VALUES ('Nace2', 'Nace version 2', 1)
 
 -- V A L U E S
 INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) 
