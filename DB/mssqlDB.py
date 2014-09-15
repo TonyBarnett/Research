@@ -65,7 +65,7 @@ class mssqlDB(researchdb, pymssql):
         return columns[0:-1]
 
     @staticmethod
-    def _guess_columns_types_tuple(self):
+    def _guess_columns_types_from_tuple(self):
         columns = ''
         for column,value in self.items():
             if isinstance(value, bool) or isinstance(value, int) or isinstance(value,float):
