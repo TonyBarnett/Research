@@ -177,13 +177,12 @@ UPDATE clasValue SET strParent = 'T' WHERE strSystemId = 'SIC4' AND strValue = '
 UPDATE clasValue SET strParent = 'T' WHERE strSystemId = 'SIC4' AND strValue = '98'
 UPDATE clasValue SET strParent = 'U' WHERE strSystemId = 'SIC4' AND strValue = '99'
 
-INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel, strParent)
-SELECT strSystemId, strValue, strDescription, intLevel, strParent, LEN(strValue),
-	CASE 
+UPDATE clasValue
+SET strParent = CASE 
 		WHEN LEN(strValue) = 4 THEN SUBSTRING(strValue, 0, LEN(strValue) - 1)
 		WHEN LEN(strValue) > 2 THEN SUBSTRING(strValue, 0, LEN(strValue))
 	END
-FROM clasValue 
+FROM clasValue
 WHERE strSystemId = 'Nace2'
 	AND strParent IS NULL
 

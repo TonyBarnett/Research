@@ -42,7 +42,7 @@ class mssqlDB(researchdb, pymssql):
     def read_from_database(self, database, query):
         with pymssql.connect(self._server, self._uid, self._pwd, database) as conn:
             with conn.cursor() as cursor:
-                pass
+                cursor.exceute(query)
 
     @staticmethod
     def _is_hungarian(self):
@@ -58,7 +58,7 @@ class mssqlDB(researchdb, pymssql):
         for column, value in self.items():
             if column._is_hungrian():
                 columns += column._get_column_from_hungarian()
-            elif isinstance(value, bool) or isinstance(value, int) or isinstance(value,float):
+            elif isinstance(value, bool) or isinstance(value, int) or isinstance(value, float):
                 columns += '%d,'
             else:
                 columns += '%s,'
@@ -68,7 +68,7 @@ class mssqlDB(researchdb, pymssql):
     def _guess_columns_types_from_tuple(self):
         columns = ''
         for column,value in self.items():
-            if isinstance(value, bool) or isinstance(value, int) or isinstance(value,float):
+            if isinstance(value, bool) or isinstance(value, int) or isinstance(value, float):
                 columns += '%d,'
             else:
                 columns += '%s,'
@@ -85,7 +85,7 @@ class mssqlDB(researchdb, pymssql):
             raise ValueError('must be tuple of dict')
 
 
-    def write_to_database(self, database, table, params, data, ):
+    def write_to_database(self, database, table, params, data):
         with pymssql.connect(self._server, self._uid, self._pwd, database) as conn:
             with conn.cursor() as cursor:
                 if isinstance(data[0],tuple):

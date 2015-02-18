@@ -1,89 +1,67 @@
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'CategoryMap')          BEGIN DROP TABLE CategoryMap          END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'sorImports')           BEGIN DROP TABLE sorImports           END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'sorExports')           BEGIN DROP TABLE sorExports           END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'sorFinalDemand')       BEGIN DROP TABLE sorFinalDemand       END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'sorEmissions')         BEGIN DROP TABLE sorEmissions         END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE name = 'sorValue')             BEGIN DROP TABLE sorValue             END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'sorCategory')          BEGIN DROP TABLE sorCategory          END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'ModelYear')            BEGIN DROP TABLE ModelYear            END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'dataType')             BEGIN DROP TABLE dataType             END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'dataSourcecValueLink') BEGIN DROP TABLE dataSourcecValueLink END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'cValueLink')           BEGIN DROP TABLE cValueLink           END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'cSystemLink')          BEGIN DROP TABLE cSystemLink          END
-IF EXISTS (SELECT NULL FROM sys.tables WHERE Name = 'dataSource')           BEGIN DROP TABLE dataSource           END
-
-CREATE TABLE cSystemLink (
-	strClasSystemId varchar(32) NOT NULL,
+CREATE TABLE Region (
+	strRegion varchar(64) NOT NULL,
 	
-	CONSTRAINT cSystemLink_PK PRIMARY KEY (strClasSystemId)
-)
-
-CREATE TABLE cValueLink (
-	strClasSystemId varchar(32) NOT NULL,
-	strClasValueId  varchar(32) NOT NULL,
-	
-	CONSTRAINT cValueLink_PK                PRIMARY KEY (strClasSystemId, strClasValueId),
-	CONSTRAINT cValueLink_FK_cSystemLink FOREIGN KEY (strClasSystemId) REFERENCES cSystemLink (strClasSystemId)
+	CONSTRAINT Region_PK PRIMARY KEY (strRegion)
 )
 
 CREATE TABLE ModelYear (
 	intYear int NOT NULL PRIMARY KEY
 )
 
-CREATE TABLE dataSource(
-	strSource   varchar(32)  NOT NULL,
+--CREATE TABLE dataSource(
+--	strSource   varchar(32)  NOT NULL,
 
-	CONSTRAINT dataSource_PK PRIMARY KEY (strSource)
-)
+--	CONSTRAINT dataSource_PK PRIMARY KEY (strSource)
+--)
 
-CREATE TABLE dataType(
-	strDataSourceId varchar(32) NOT NULL,
-	strDataType     varchar(32) NOT NULL,
+--CREATE TABLE dataType(
+--	strDataSourceId varchar(32) NOT NULL,
+--	strDataType     varchar(32) NOT NULL,
 	
-	CONSTRAINT dataType_PK            PRIMARY KEY (strDataSourceId, strDataType),
-	CONSTRAINT dataType_FK_dataSource FOREIGN KEY (strDataSourceId) REFERENCES dataSource (strSource)
-)
+--	CONSTRAINT dataType_PK            PRIMARY KEY (strDataSourceId, strDataType),
+--	CONSTRAINT dataType_FK_dataSource FOREIGN KEY (strDataSourceId) REFERENCES dataSource (strSource)
+--)
 
-CREATE TABLE sorCategory ( -- The surrogate key is so that you can store values without storing types.
-	intCategoryId  int          NOT NULL IDENTITY(1, 1),
-	strSourceId    varchar(32)  NOT NULL,
-	strTypeId      varchar(32)  NOT NULL,
-	strId          varchar(32)  NOT NULL,
-	strDescription varchar(256)     NULL,
+--CREATE TABLE sorCategory ( -- The surrogate key is so that you can store values without storing types.
+--	intCategoryId  int          NOT NULL IDENTITY(1, 1),
+--	strSourceId    varchar(32)  NOT NULL,
+--	strTypeId      varchar(32)  NOT NULL,
+--	strId          varchar(32)  NOT NULL,
+--	strDescription varchar(256)     NULL,
 	
-	CONSTRAINT sorCategory_PK              PRIMARY KEY (intcategoryId),
-	CONSTRAINT sorCategory_UQ_SourceTypeId UNIQUE      (strSourceId, strTypeId, strId),
-	CONSTRAINT sorCategory_FK_dataType     FOREIGN KEY (strSourceId, strTypeId)   REFERENCES dataType   (strDataSourceId, strDataType)
-)
+--	CONSTRAINT sorCategory_PK              PRIMARY KEY (intcategoryId),
+--	CONSTRAINT sorCategory_UQ_SourceTypeId UNIQUE      (strSourceId, strTypeId, strId),
+--	CONSTRAINT sorCategory_FK_dataType     FOREIGN KEY (strSourceId, strTypeId)   REFERENCES dataType   (strDataSourceId, strDataType)
+--)
 
-CREATE TABLE sorValue (
-	intYear       int   NOT NULL,
-	intIndustryId int   NOT NULL,
-	intProductId  int   NOT NULL,
-	fltValue      float     NULL,
+--CREATE TABLE sorValue (
+--	intYear       int   NOT NULL,
+--	intIndustryId int   NOT NULL,
+--	intProductId  int   NOT NULL,
+--	fltValue      float     NULL,
 	
-	CONSTRAINT sorValue_PK                      PRIMARY KEY (intYear, intIndustryId, intProductId),
-	CONSTRAINT sorValue_FK_ModelYear            FOREIGN KEY (intYear)       REFERENCES ModelYear (intYear),
-	CONSTRAINT sorValue_FK_sorCategory_Product  FOREIGN KEY (intProductId)  REFERENCES sorCategory (intCategoryId),
-	CONSTRAINT sorValue_FK_sorCategory_Industry FOREIGN KEY (intIndustryId) REFERENCES sorCategory (intCategoryId)
-)
+--	CONSTRAINT sorValue_PK                      PRIMARY KEY (intYear, intIndustryId, intProductId),
+--	CONSTRAINT sorValue_FK_ModelYear            FOREIGN KEY (intYear)       REFERENCES ModelYear (intYear),
+--	CONSTRAINT sorValue_FK_sorCategory_Product  FOREIGN KEY (intProductId)  REFERENCES sorCategory (intCategoryId),
+--	CONSTRAINT sorValue_FK_sorCategory_Industry FOREIGN KEY (intIndustryId) REFERENCES sorCategory (intCategoryId)
+--)
 
-CREATE TABLE sorEmissions (
-	intYear          int    NOT NULL,
-	intSorCategoryId int    NOT NULL,
-	fltEmissions     float      NULL,
+--CREATE TABLE sorEmissions (
+--	intYear          int    NOT NULL,
+--	intSorCategoryId int    NOT NULL,
+--	fltEmissions     float      NULL,
 	
-	CONSTRAINT sorEmissions_PK PRIMARY KEY (intYear, intsorCategoryId)
-)
+--	CONSTRAINT sorEmissions_PK PRIMARY KEY (intYear, intsorCategoryId)
+--)
 
-CREATE TABLE sorFinalDemand (
-	intYear          int   NOT NULL,
-	intSorCategoryId int   NOT NULL,
-	fltValue         float     NULL,
+--CREATE TABLE sorFinalDemand (
+--	intYear          int   NOT NULL,
+--	intSorCategoryId int   NOT NULL,
+--	fltValue         float     NULL,
 	
-	CONSTRAINT sorFinalDemand_PK             PRIMARY KEY (intYear, intSorCategoryId),
-	CONSTRAINT sorFinalDemand_FK_sorCategort FOREIGN KEY (intSorCategoryId) REFERENCES sorCategory (intCategoryId)
-)
+--	CONSTRAINT sorFinalDemand_PK             PRIMARY KEY (intYear, intSorCategoryId),
+--	CONSTRAINT sorFinalDemand_FK_sorCategort FOREIGN KEY (intSorCategoryId) REFERENCES sorCategory (intCategoryId)
+--)
 
 --CREATE TABLE sorImports (
 --	intYear          int   NOT NULL,
@@ -94,69 +72,87 @@ CREATE TABLE sorFinalDemand (
 --	CONSTRAINT sorImports_FK_sorCategory FOREIGN KEY (intSorCategoryId) REFERENCES sorCategory (intCategoryId)
 --)
 
-CREATE TABLE sorExports (
-	intYear          int   NOT NULL,
-	intSorCategoryId int   NOT NULL,
-	fltValue         float     NULL,	
+--CREATE TABLE sorExports (
+--	intYear          int   NOT NULL,
+--	intSorCategoryId int   NOT NULL,
+--	fltValue         float     NULL,	
 	
-	CONSTRAINT sorExports_PK             PRIMARY KEY (intYear, intSorCategoryId),
-	CONSTRAINT sorExports_FK_sorCategory FOREIGN KEY (intSorCategoryId) REFERENCES sorCategory (intCategoryId)
-)
+--	CONSTRAINT sorExports_PK             PRIMARY KEY (intYear, intSorCategoryId),
+--	CONSTRAINT sorExports_FK_sorCategory FOREIGN KEY (intSorCategoryId) REFERENCES sorCategory (intCategoryId)
+--)
 
-CREATE TABLE CategoryMap (
-	intFromCategoryId int   NOT NULL,
-	intToCategoryId   int   NOT NULL,
-	fltWeight         float     NULL,
+----CREATE TABLE sorCategory_cValueLink (
+----)
+
+--CREATE TABLE CategoryMap (
+--	intFromCategoryId int   NOT NULL,
+--	intToCategoryId   int   NOT NULL,
+--	fltWeight         float     NULL,
 	
-	CONSTRAINT CategoryMap_PK                 PRIMARY KEY (intfromCategoryId, intToCategoryId),
-	CONSTRAINT CategoryMap_FK_sorCategoryFrom FOREIGN KEY (intFromCategoryId) REFERENCES sorCategory (intCategoryId),
-	CONSTRAINT CategoryMap_FK_sorCategoryTo   FOREIGN KEY (intToCategoryId)   REFERENCES sorCategory (intCategoryId)
-)
+--	CONSTRAINT CategoryMap_PK                 PRIMARY KEY (intfromCategoryId, intToCategoryId),
+--	CONSTRAINT CategoryMap_FK_sorCategoryFrom FOREIGN KEY (intFromCategoryId) REFERENCES sorCategory (intCategoryId),
+--	CONSTRAINT CategoryMap_FK_sorCategoryTo   FOREIGN KEY (intToCategoryId)   REFERENCES sorCategory (intCategoryId)
+--)
 
-CREATE TABLE dataSourcecValueLink (
-	strDataSourceId varchar(32) NOT NULL,
-	strClasSystemId varchar(32) NOT NULL,
-	strClasValueId  varchar(32) NOT NULL,
+--CREATE TABLE dataSourcecValueLink (
+--	strDataSourceId varchar(32) NOT NULL,
+--	strClasSystemId varchar(32) NOT NULL,
+--	strClasValueId  varchar(32) NOT NULL,
 	
-	CONSTRAINT dataSourcecValueLink_PK               PRIMARY KEY (strDataSourceId, strClasSystemId, strClasValueId),
-	CONSTRAINT dataSourcecValueLink_FK_cValueLink FOREIGN KEY (strClasSystemId, strClasValueId) REFERENCES cValueLink (strClasSystemId,strClasValueId),
-	CONSTRAINT dataSourcecValueLink_FK_dataSource    FOREIGN KEY (strDataSourceId)                 REFERENCES dataSource    (strSource)
-)
+--	CONSTRAINT dataSourcecValueLink_PK            PRIMARY KEY (strDataSourceId, strClasSystemId, strClasValueId),
+--	CONSTRAINT dataSourcecValueLink_FK_cValueLink FOREIGN KEY (strClasSystemId, strClasValueId) REFERENCES cValueLink (strClasSystemId,strClasValueId),
+--	CONSTRAINT dataSourcecValueLink_FK_dataSource FOREIGN KEY (strDataSourceId)                 REFERENCES dataSource (strSource)
+--)
 
-INSERT INTO cSystemLink 
-SELECT strName 
-FROM ClassificationSystems..clasSystem
+--INSERT INTO cSystemLink 
+--SELECT strName 
+--FROM ClassificationSystems..clasSystem
 
-INSERT INTO cValueLink 
-SELECT strSystemId, strValue
-FROM ClassificationSystems..clasValue
+--INSERT INTO cValueLink 
+--SELECT strSystemId, strValue
+--FROM ClassificationSystems..clasValue
 
-INSERT INTO dataSource VALUES ('UK Consumption')
-INSERT INTO dataSource VALUES ('UK Supply')
-INSERT INTO dataSource VALUES ('UK Emissions')
-INSERT INTO dataSource VALUES ('UK Imports')
-INSERT INTO dataSource VALUES ('UK Exports To EU')
+INSERT INTO ModelYear VALUES (2000)
+INSERT INTO ModelYear VALUES (2001)
+INSERT INTO ModelYear VALUES (2002)
+INSERT INTO ModelYear VALUES (2003)
+INSERT INTO ModelYear VALUES (2004)
+INSERT INTO ModelYear VALUES (2005)
+INSERT INTO ModelYear VALUES (2006)
+INSERT INTO ModelYear VALUES (2007)
+INSERT INTO ModelYear VALUES (2008)
+INSERT INTO ModelYear VALUES (2009)
+INSERT INTO ModelYear VALUES (2010)
 
-INSERT INTO dataSource VALUES ('EU Supply')
-INSERT INTO dataSource VALUES ('EU Consumption')
-INSERT INTO dataSource VALUES ('EU Emissions')
-INSERT INTO dataSource VALUES ('EU Exports To UK')
+INSERT INTO Region VALUES ('UK')
+INSERT INTO Region VALUES ('EU')
+
+--INSERT INTO dataSource VALUES ('UK Consumption')
+--INSERT INTO dataSource VALUES ('UK Supply')
+--INSERT INTO dataSource VALUES ('UK Emissions')
+--INSERT INTO dataSource VALUES ('UK Imports')
+--INSERT INTO dataSource VALUES ('UK Exports To EU')
+
+--INSERT INTO dataSource VALUES ('EU Supply')
+--INSERT INTO dataSource VALUES ('EU Consumption')
+--INSERT INTO dataSource VALUES ('EU Emissions')
+--INSERT INTO dataSource VALUES ('EU Exports To UK')
 
 
-INSERT INTO dataType VALUES('UK Consumption', 'Product')
-INSERT INTO dataType VALUES('UK Consumption', 'Industry')
-INSERT INTO dataType VALUES('UK Supply', 'Product')
-INSERT INTO dataType VALUES('UK Supply', 'Industry')
-INSERT INTO dataType VALUES('UK Emissions', 'Product')
-INSERT INTO dataType VALUES('UK Imports','Product')
-INSERT INTO dataType VALUES('UK Exports To EU','Product')
+--INSERT INTO dataType VALUES('UK Consumption', 'Product')
+--INSERT INTO dataType VALUES('UK Consumption', 'Industry')
+--INSERT INTO dataType VALUES('UK Supply', 'Product')
+--INSERT INTO dataType VALUES('UK Supply', 'Industry')
+--INSERT INTO dataType VALUES('UK Emissions', 'Product')
+--INSERT INTO dataType VALUES('UK Imports','Product')
+--INSERT INTO dataType VALUES('UK Exports To EU','Product')
 
-INSERT INTO dataType VALUES('EU Consumption', 'Product')
-INSERT INTO dataType VALUES('EU Consumption', 'Industry')
-INSERT INTO dataType VALUES('EU Supply', 'Product')
-INSERT INTO dataType VALUES('EU Supply', 'Industry')
-INSERT INTO dataType VALUES('EU Emissions', 'Product')
-INSERT INTO dataType VALUES('EU Exports To UK','Product')
+--INSERT INTO dataType VALUES('EU Consumption', 'Product')
+--INSERT INTO dataType VALUES('EU Consumption', 'Industry')
+--INSERT INTO dataType VALUES('EU Supply', 'Product')
+--INSERT INTO dataType VALUES('EU Supply', 'Industry')
+--INSERT INTO dataType VALUES('EU Emissions', 'Product')
+--INSERT INTO dataType VALUES('EU Exports To UK','Product')
 
 --CREATE TABLE Intensities ( -- Condensed sorCategory system
 --	intYear         int          NOT NULL,
