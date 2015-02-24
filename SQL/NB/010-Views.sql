@@ -7,7 +7,7 @@ SELECT r.strTrainingMethod,
        r.strGuess,
        r.fltProbability
 FROM NaiveBayes..mappingResults r
-INNER JOIN (
+LEFT JOIN (
 	SELECT strTrainingMethod, strType, strSystemId, strValue, MAX(fltProbability) * 1.1 AS maxProbability
 	FROM NaiveBayes..mappingResults
 	WHERE fltProbability IS NOT NULL
@@ -41,7 +41,7 @@ SELECT r.strTrainingMethod,
        r.strGuess,
        r.fltProbability
 FROM NaiveBayes..mappingResults r
-INNER JOIN (
+LEFT JOIN (
 	SELECT strTrainingMethod, strType, strSystemId, strValue, MAX(fltProbability) * 1.01 AS maxProbability
 	FROM NaiveBayes..mappingResults
 	WHERE fltProbability IS NOT NULL
