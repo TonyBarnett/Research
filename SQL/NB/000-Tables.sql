@@ -35,3 +35,17 @@ CREATE TABLE DocumentWords (
 	CONSTRAINT DocumentWords_PK PRIMARY KEY (intDocumentId, strWord),
 	CONSTRAINT DocumentWords_FK_vocabulary FOREIGN KEY (strWord) REFERENCES vocabulary (strWord)
 )
+GO
+CREATE SCHEMA temp
+
+CREATE TABLE temp.mappings (
+	strTrainingMethod varchar(256) NOT NULL,
+	strType           varchar(256) NOT NULL,
+	strSystemId       varchar(64)  NOT NULL,
+	strValue          varchar(32)  NOT NULL,
+	strGuess          varchar(16)  NOT NULL,
+	fltProbability    float            NULL,
+	datTimeStamp      datetime     NOT NULL DEFAULT GETDATE(),
+	
+	CONSTRAINT mappingResults_PK PRIMARY KEY (strTrainingMethod, strType, strSystemId, strValue, strGuess)
+)
