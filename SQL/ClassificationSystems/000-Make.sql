@@ -154,6 +154,28 @@ SELECT 'Nace2', strvalue, strDescription,
 	END
 FROM RawData..Nace2
 
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'A', 'AGRICULTURE, FORESTRY AND FISHING', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'B', 'MINING AND QUARRYING', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'C', 'MANUFACTURING', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'D', 'ELECTRICITY,  GAS,  STEAM AND AIR CONDITIONING SUPPLY', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'E', 'WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'F', 'CONSTRUCTION', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'G', 'WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'H', 'TRANSPORTATION AND STORAGE', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'I', 'ACCOMMODATION AND FOOD SERVICE ACTIVITIES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'J', 'INFORMATION AND COMMUNICATION', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'K', 'FINANCIAL AND INSURANCE ACTIVITIES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'L', 'REAL ESTATE ACTIVITIES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'M', 'PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'N', 'ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'O', 'PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'P', 'EDUCATION', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'Q', 'HUMAN HEALTH AND SOCIAL WORK ACTIVITIES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'R', 'ARTS, ENTERTAINMENT AND RECREATION', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'S', 'OTHER SERVICE ACTIVITIES', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'T', 'ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; U0NDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE', 1)
+INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel) VALUES ('Nace2', 'U', 'ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES', 1)
+
 INSERT INTO clasValue (strSystemId, strValue, strDescription, intLevel)
 SELECT 'Nace11', strCode, strDescription, 
 	CASE 
